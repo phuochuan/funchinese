@@ -1,0 +1,496 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  student
+  teacher
+}
+
+enum HskLevel {
+  HSK1
+  HSK2
+  HSK3
+  HSK4
+  HSK5
+  HSK6
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE   // Trắc nghiệm 4 đáp án
+  FILL_BLANK        // Điền chỗ trống
+  MATCHING          // Ghép cặp
+  WORD_ORDER        // Sắp xếp từ
+  FREE_WRITE        // Tự luận
+  TRANSLATION       // Dịch câu
+}
+
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  // Keycloak ID — dùng để map sau khi SSO
+  keycloakId    String?   @unique
+  name          String
+  email         String    @unique
+  image         String?
+  role          Role      @default(student)
+
+  xp            Int       @default(0)
+  level         String    @default("Học sinh mới") // Đồng / Bạc / Vàng...
+  streakDays    Int       @default(0)
+  maxStreak     Int       @default(0)
+  lastStudyDate DateTime?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  classMembers      ClassMember[]
+  lessonProgress    LessonProgress[]
+  userVocabulary    UserVocabulary[]
+  submissions       Submission[]
+  quizSessions      QuizSession[]
+  userBadges        UserBadge[]
+  dailyActivity     DailyActivity[]
+  gradedBy          Grade[]           @relation("GradedBy")
+  notifications     Notification[]
+  assignmentAssignees  AssignmentAssignee[]
+  
+  @@map("users")
+}
+
+// ─── Classes ──────────────────────────────────────────────────────────────────
+
+model Class {
+  id          String   @id @default(cuid())
+  name        String                        // "Lớp A2 Tối"
+  description String?
+  joinCode    String   @unique              // Mã 6 ký tự: "HSK2A"
+  teacherId   String
+  scheduleNote String?                      // "T2, T4 19:30"
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members     ClassMember[]
+  assignments Assignment[]
+
+  schedules ClassSchedule[]
+  sessions  ClassSession[]
+  courseId     String? 
+  course  Course?  @relation(fields: [courseId], references: [id]) 
+
+  @@map("classes")
+}
+
+model ClassMember {
+  id        String   @id @default(cuid())
+  classId   String
+  userId    String
+  joinedAt  DateTime @default(now())
+
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, userId])
+  @@map("class_members")
+}
+
+// ─── Courses & Lessons ────────────────────────────────────────────────────────
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String                        // "HSK 2 - Giao tiếp cơ bản"
+  description String?
+  hskLevel    HskLevel
+  thumbnail   String?
+  isPublished Boolean  @default(false)
+  sortOrder   Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  chapters    Chapter[]
+  classes   Class[]
+
+  @@map("courses")
+}
+
+model Chapter {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String
+  sortOrder   Int      @default(0)
+
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+
+  @@map("chapters")
+}
+
+model Lesson {
+  id            String   @id @default(cuid())
+  chapterId     String
+  title         String                      // "Bài 12: Gia đình & Họ hàng"
+  titleChinese  String?                     // "我的家庭"
+  pinyin        String?                     // "Wǒ de jiātíng"
+  content       Json?                       // Block editor content
+  durationMins  Int      @default(15)
+  sortOrder     Int      @default(0)
+  isPublished   Boolean  @default(false)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  chapter       Chapter           @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  vocabularies  LessonVocabulary[]
+  progress      LessonProgress[]
+  thumbnail     String?
+
+  @@map("lessons")
+}
+
+// ─── Vocabulary ───────────────────────────────────────────────────────────────
+
+model Vocabulary {
+  id          String   @id @default(cuid())
+  hanzi       String                        // 学习
+  pinyin      String                        // xué xí
+  hanViet     String                        // Học tập
+  meaningVi   String                        // Học tập / Học hành
+  exampleSentence String?                   // 我每天学习汉语。
+  examplePinyin   String?
+  exampleVi       String?
+  audioUrl    String?
+  hskLevel    HskLevel
+  wordType    String?                       // 动词 / 名词 / 形容词
+
+  createdAt   DateTime @default(now())
+
+  lessons     LessonVocabulary[]
+  userVocab   UserVocabulary[]
+  questions   QuestionVocab[]
+
+  @@map("vocabulary")
+}
+
+model LessonVocabulary {
+  lessonId     String
+  vocabularyId String
+  sortOrder    Int @default(0)
+
+  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+
+  @@id([lessonId, vocabularyId])
+  @@map("lesson_vocabulary")
+}
+
+// Từ vựng user đã học (spaced repetition)
+model UserVocabulary {
+  id            String   @id @default(cuid())
+  userId        String
+  vocabularyId  String
+  timesCorrect  Int      @default(0)
+  timesWrong    Int      @default(0)
+  easeFactor    Float    @default(2.5)  // SM-2 algorithm
+  interval      Int      @default(1)   // ngày
+  nextReviewAt  DateTime @default(now())
+  lastSeenAt    DateTime @default(now())
+
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vocabulary    Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vocabularyId])
+  @@map("user_vocabulary")
+}
+
+// ─── Lesson Progress ──────────────────────────────────────────────────────────
+
+model LessonProgress {
+  id            String   @id @default(cuid())
+  userId        String
+  lessonId      String
+  completed     Boolean  @default(false)
+  completedAt   DateTime?
+  lastViewedAt  DateTime @default(now())
+
+  user          User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson        Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("lesson_progress")
+}
+
+// ─── Assignments ──────────────────────────────────────────────────────────────
+
+model Assignment {
+  id            String   @id @default(cuid())
+  classId       String
+  title         String
+  description   String?
+  deadline      DateTime
+  allowReview   Boolean  @default(true)
+  maxAttempts   Int      @default(1)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  class         Class          @relation(fields: [classId], references: [id], onDelete: Cascade)
+  questions     AssignmentQuestion[]
+  submissions   Submission[]
+
+  imageUrls     String[]  @default([])
+  allowLate     Boolean   @default(true)
+  xpReward      Int       @default(50)
+  assignType    AssignType @default(CLASS)
+  assignees     AssignmentAssignee[]
+
+  @@map("assignments")
+}
+
+model AssignmentAssignee {
+  id           String     @id @default(cuid())
+  assignmentId String
+  userId       String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([assignmentId, userId])
+  @@map("assignment_assignees")
+}
+
+model Question {
+  id            String       @id @default(cuid())
+  type          QuestionType
+  content       String                    // Nội dung câu hỏi
+  options       Json?                     // ["A", "B", "C", "D"]
+  correctAnswer String                    // Đáp án đúng
+  explanation   String?                   // Giải thích
+  points        Int          @default(1)
+  hskLevel      HskLevel?
+  tags          String[]                  // ["ngữ pháp", "từ vựng"]
+  audioUrl      String?
+
+  createdAt     DateTime @default(now())
+
+  assignments   AssignmentQuestion[]
+  vocabulary    QuestionVocab[]
+
+  @@map("questions")
+}
+
+model QuestionVocab {
+  questionId   String
+  vocabularyId String
+
+  question     Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+
+  @@id([questionId, vocabularyId])
+  @@map("question_vocab")
+}
+
+model AssignmentQuestion {
+  assignmentId String
+  questionId   String
+  sortOrder    Int @default(0)
+
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  question     Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([assignmentId, questionId])
+  @@map("assignment_questions")
+}
+
+// ─── Submissions & Grading ────────────────────────────────────────────────────
+
+model Submission {
+  id            String           @id @default(cuid())
+  assignmentId  String
+  userId        String
+  status        SubmissionStatus @default(DRAFT)
+  answers       Json             // { questionId: answer }
+  autoScore     Float?           // Điểm tự động (trắc nghiệm)
+  finalScore    Float?           // Điểm cuối sau khi GV chấm
+  submittedAt   DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  assignment    Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  grade         Grade?
+  textContent  String?
+  mediaUrls    String[]  @default([])
+  attempt      Int       @default(1)
+
+  @@unique([assignmentId, userId])
+  @@map("submissions")
+}
+
+model Grade {
+  id            String   @id @default(cuid())
+  submissionId  String   @unique
+  teacherId     String
+  scores        Json     // { questionId: { score, comment, tags } }
+  totalScore    Float
+  overallComment String?
+  sentAt        DateTime @default(now())
+
+  submission    Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  teacher       User       @relation("GradedBy", fields: [teacherId], references: [id])
+
+  passed    Boolean
+  score     Float?
+  comment   String?
+  reassign  Boolean  @default(false)
+  gradedAt  DateTime @default(now())
+
+  @@map("grades")
+}
+
+// ─── Quiz Sessions ────────────────────────────────────────────────────────────
+
+model QuizSession {
+  id          String   @id @default(cuid())
+  userId      String
+  mode        String                        // "flashcard" | "quiz" | "listening" | "writing"
+  source      String                        // "lesson:lessonId" | "hsk:HSK2" | "weak"
+  totalQ      Int
+  correctQ    Int      @default(0)
+  xpEarned    Int      @default(0)
+  durationSec Int      @default(0)
+  results     Json                          // [{ vocabId, correct, timeMs }]
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_sessions")
+}
+
+// ─── Gamification ─────────────────────────────────────────────────────────────
+
+model Badge {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  iconUrl     String
+  condition   Json    // { type: "streak", value: 7 }
+
+  userBadges  UserBadge[]
+
+  @@map("badges")
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeId   String
+  earnedAt  DateTime @default(now())
+
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@map("user_badges")
+}
+
+// Hoạt động mỗi ngày — dùng cho heatmap & streak
+model DailyActivity {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime @db.Date        // Chỉ lưu ngày, không giờ
+  xpEarned  Int      @default(0)
+  wordsLearned Int   @default(0)
+  minutesStudied Int @default(0)
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("daily_activity")
+}
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "new_assignment" | "graded" | "badge" | "streak_reminder"
+  title     String
+  body      String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+
+// Thêm vào prisma/schema.prisma — sau model Class hiện tại
+
+model ClassSchedule {
+  id          String    @id @default(cuid())
+  classId     String
+  dayOfWeek   Int       // 1=T2 2=T3 3=T4 4=T5 5=T6 6=T7 7=CN
+  startTime   String    // "08:00"
+  endTime     String    // "10:00"
+  location    String?   // "Phòng A102" hoặc "Zoom ID: 882..."
+  isOnline    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  class       Class        @relation(fields: [classId], references: [id], onDelete: Cascade)
+  sessions    ClassSession[]
+
+  @@map("class_schedules")
+}
+
+model ClassSession {
+  id           String        @id @default(cuid())
+  scheduleId   String
+  classId      String
+  date         DateTime      // Ngày cụ thể
+  startTime    String
+  endTime      String
+  location     String?
+  isOnline     Boolean       @default(false)
+  status       SessionStatus @default(SCHEDULED)
+  cancelReason String?
+  cancelledBy  String?
+  createdAt    DateTime      @default(now())
+
+  schedule     ClassSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  class        Class         @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@map("class_sessions")
+}
+
+enum SessionStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum AssignType {
+  CLASS
+  INDIVIDUAL
+}
+
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  GRADED
+  Assignment 
+}
