@@ -13,6 +13,7 @@ const NAV = [
   { href: "/admin/content/vocabulary",    icon: "library_books",label: "Từ vựng"    }, // ← thêm
   { href: "/admin/assignments",           icon: "assignment",   label: "Bài tập"    },
   // { href: "/admin/reports",               icon: "bar_chart",    label: "Báo cáo"    },
+  { href: "/admin/questions", icon: "quiz", label: "Thư viện câu hỏi" },
 ];
 
 function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {

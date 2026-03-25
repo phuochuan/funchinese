@@ -1,0 +1,29 @@
+// Thêm vào prisma/schema.prisma
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  FILL_BLANK
+  SPEAKING
+  LISTENING
+}
+
+model HskQuestion {
+  id          String       @id @default(cuid())
+  code        String       @unique // Q-8842
+  hanzi       String
+  pinyin      String?
+  meaningVi   String?
+  meaningEn   String?
+  hskLevel    Int          // 1-6
+  type        QuestionType @default(MULTIPLE_CHOICE)
+  options     Json?        // ["A","B","C","D"]
+  answer      String?      // correct answer
+  explanation String?
+  audioUrl    String?
+  category    String?      // Verbs, Places, Objects...
+  tags        String[]     @default([])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("hsk_questions")
+}

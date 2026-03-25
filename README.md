@@ -1,36 +1,182 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📘 Practice by Level – Feature Documentation
 
-## Getting Started
+## 1. 🎯 Overview
+The **Practice by Level** feature allows students to practice multiple-choice questions based on their current learning level, within a user-selected time limit. The system enforces time constraints and automatically submits the session when time expires.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 2. 👥 Actors
+- **Student**: participates in practice sessions  
+- **Admin/Teacher**: manages and imports question data  
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 3. 📊 Core Entities
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Question
+- Content (text)
+- Level (difficulty)
+- List of answers (multiple choice)
+- Exactly one correct answer
+- Audio (optional)
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+### Practice Session
+- User
+- Level
+- Question set (immutable snapshot)
+- `startedAt` (start time)
+- `expiresAt` (end time)
+- `durationSelected` (user-selected duration)
+- Status:
+  - `doing`
+  - `submitted`
+  - `expired`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 4. 🔄 Business Flow
 
-## Deploy on Vercel
+### 4.1 Start Practice
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Trigger:**  
+Student clicks “Practice by Level”
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Input:**
+- Selected duration (minutes)
+
+**Process:**
+1. Determine the student’s highest level  
+2. Validate duration:
+   - Minimum: 5 minutes  
+   - Maximum (optional): e.g. 30 minutes  
+3. Retrieve questions by level  
+4. Randomly select a fixed number of questions  
+5. Create a session:
+   - `startedAt = now`
+   - `expiresAt = now + durationSelected`
+
+**Output:**
+- Question list
+- Remaining time
+
+---
+
+### 4.2 During Practice
+
+- Student selects answers
+- Audio playback available (if exists)
+- Countdown timer is displayed
+
+---
+
+### 4.3 Finish Practice
+
+#### Case 1: Manual Submit
+- Validate session is still active
+- Calculate score
+- Save results
+- Update status → `submitted`
+
+---
+
+#### Case 2: Time Expired (Auto Submit)
+- When `now >= expiresAt`:
+  - System auto-submits the session
+  - Only answered questions are counted
+  - Unanswered questions are marked incorrect
+  - Status → `expired`
+
+---
+
+## 5. ⏱️ Time Rules
+
+- Duration is selected by user (≥ 5 minutes)
+- Backend is the single source of truth for time
+- Duration cannot be changed after session starts
+- Submissions after expiration are not allowed
+
+---
+
+## 6. 🧠 Scoring Rules
+
+- Each question:
+  - Correct → +1 point  
+  - Incorrect / unanswered → 0 point  
+- Total score = sum of correct answers
+
+---
+
+## 7. 🔒 System Rules
+
+- Each session can only be submitted once  
+- Question set is immutable after session creation  
+- Do not trust frontend data (time, answers)  
+- Expired sessions must be handled (auto submit)  
+
+---
+
+## 8. 📥 Question Import (Admin)
+
+### Requirements:
+- Question content
+- Level
+- At least 2 answers
+- Exactly 1 correct answer
+
+---
+
+### Audio Support:
+- Optional
+- Supported methods:
+  - File upload
+  - Auto generation (Text-to-Speech)
+
+---
+
+## 9. ⚠️ Edge Cases
+
+- Not enough questions for a level  
+  → fallback to lower level or return error  
+
+- Page reload  
+  → resume current session  
+
+- User exits mid-session  
+  → session continues until expiration  
+
+- User does not submit  
+  → auto submit when time expires  
+
+- Multiple tabs  
+  → share the same session  
+
+---
+
+## 10. 🎯 Gameplay Rules
+
+- Number of questions: fixed per session  
+- Duration: user-selected  
+
+**Purpose:**  
+- Flexible learning experience  
+- Not designed for competitive exams  
+
+---
+
+## 11. 🚀 Future Enhancements
+
+- Leaderboard  
+- Daily challenges  
+- Adaptive difficulty  
+- Performance analytics  
+
+---
+
+## ✅ Summary
+A level-based practice system with:
+- Flexible time selection  
+- Fixed question set  
+- Strict time enforcement  
+- Automatic submission on timeout  

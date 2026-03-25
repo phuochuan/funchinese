@@ -340,6 +340,58 @@ export default function VocabularyPage() {
 
   const LIMIT = 10;
 
+    const fileRef = useRef<HTMLInputElement | null>(null);
+  const [importing, setImporting] = useState(false);
+
+  const onClickImport = () => {
+    fileRef.current?.click();
+  };
+
+   const handleImport = async (file: File) => {
+  if (!file) return;
+
+  const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setImporting(true);
+
+      const res = await fetch("/api/admin/vocabulary", {
+        method: "PUT",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Import thất bại");
+        return;
+      }
+
+      alert(
+        `Import xong!\n` +
+        `✔ Thành công: ${data.success}\n` +
+        `✖ Thất bại: ${data.failed}`
+      );
+
+      fetchVocabs(); // reload list
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi khi import file");
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleImport(file);
+
+    // reset để chọn lại cùng file vẫn trigger
+    e.target.value = "";
+  };
+
+
   const fetchVocabs = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({
@@ -436,10 +488,32 @@ export default function VocabularyPage() {
           </p>
         </div>
         <div className="flex gap-3 flex-shrink-0">
-          <button className="flex items-center gap-2 px-4 py-2.5 border border-outline-variant/40 rounded-xl text-sm font-bold text-on-surface hover:bg-surface-container transition-all">
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>upload</span>
-            Import CSV
+          <button
+            onClick={onClickImport}
+            disabled={importing}
+            className="flex items-center gap-2 px-4 py-2.5 border border-outline-variant/40 rounded-xl text-sm font-bold text-on-surface hover:bg-surface-container transition-all disabled:opacity-50"
+          >
+            {importing ? (
+              <>
+                <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                Đang import...
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>upload</span>
+                Import CSV
+              </>
+            )}
           </button>
+
+          <input
+            type="file"
+            accept=".csv,.xlsx,.xls"
+            ref={fileRef}
+            onChange={onFileChange}
+            hidden
+          />
+          
           <button onClick={() => setModal("add")}
             className="flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary rounded-xl text-sm font-bold hover:brightness-110 transition-all shadow-md">
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>
