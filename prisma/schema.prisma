@@ -519,3 +519,15 @@ model HskQuestion {
 
   @@map("hsk_questions")
 }
+
+
+model PracticeSession {
+  id                String   @id @default(cuid())
+  userId            String   // 👉 sẽ là keycloakId
+  level             Int
+  durationSelected  Int
+  expiresAt         DateTime
+  questions         Json
+  status            String
+  createdAt         DateTime @default(now())
+}
