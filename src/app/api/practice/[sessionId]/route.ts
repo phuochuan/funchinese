@@ -2,14 +2,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(
-  req: NextRequest,
-  context: { params: { sessionId: string } }
-) {
-  const { sessionId } = context.params;
-
+export async function GET(req: NextRequest, { params }: { params: { sessionId: string } }) {
+  console.log("params:", params);
   const session = await prisma.practiceSession.findUnique({
-    where: { id: sessionId },
+    where: { id: params.sessionId },
   });
 
   if (!session || session.status !== 'doing') {
