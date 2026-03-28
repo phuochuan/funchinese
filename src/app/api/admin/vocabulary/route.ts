@@ -6,6 +6,8 @@ import { generateZhAudio } from "@/lib/tts";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 
+type CsvRow = Record<string, string | number | null>;
+
 
 async function requireTeacher() {
   const session = await auth();
@@ -120,13 +122,13 @@ export async function PUT(req: NextRequest) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  let rows: any[] = [];
+  let rows: CsvRow[] = [];
 
   // ─── Parse file ─────────────────────────────────────────
   if (file.name.endsWith(".csv")) {
     const csv = buffer.toString("utf-8");
     const parsed = Papa.parse(csv, { header: true });
-    rows = parsed.data;
+    rows = parsed.data as CsvRow[];
   } else if (file.name.match(/\.(xlsx|xls)$/)) {
     const workbook = XLSX.read(buffer, { type: "buffer" });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -136,11 +138,11 @@ export async function PUT(req: NextRequest) {
   }
 
   // ─── Utils ──────────────────────────────────────────────
-  const normalizeRow = (row: any) =>
+  const normalizeRow = (row: CsvRow): CsvRow =>
     Object.fromEntries(
       Object.entries(row).map(([k, v]) => [
         k.trim().toLowerCase(),
-        typeof v === "string" ? v.trim() : v,
+        typeof v === "string" ? (v as string).trim() : v,
       ])
     );
 
@@ -167,15 +169,15 @@ export async function PUT(req: NextRequest) {
     try {
       const row = normalizeRow(rawRow);
 
-      const hanzi = row.hanzi;
-      const pinyin = row.pinyin;
-      const meaningVi = row.meaningvi;
+      const hanzi = String(row.hanzi ?? "");
+      const pinyin = String(row.pinyin ?? "");
+      const meaningVi = String(row.meaningvi ?? "");
 
-      const hanViet = row.hanviet || null;
-      const exampleSentence = row.examplesentence || null;
-      const examplePinyin = row.examplepinyin || null;
-      const exampleVi = row.examplevi || null;
-      const wordType = row.wordtype || null;
+      const hanViet = row.hanviet ? String(row.hanviet) : null;
+      const exampleSentence = row.examplesentence ? String(row.examplesentence) : null;
+      const examplePinyin = row.examplepinyin ? String(row.examplepinyin) : null;
+      const exampleVi = row.examplevi ? String(row.examplevi) : null;
+      const wordType = row.wordtype ? String(row.wordtype) : null;
 
       const hskLevel = mapHskLevel(row.hsklevel);
 
@@ -186,7 +188,7 @@ export async function PUT(req: NextRequest) {
       }
 
       // 🔊 audio
-      let finalAudioUrl = row.audiourl || null;
+      let finalAudioUrl = row.audiourl ? String(row.audiourl) : null;
       if (!finalAudioUrl) {
         try {
           finalAudioUrl = await generateZhAudio(hanzi);
@@ -197,16 +199,16 @@ export async function PUT(req: NextRequest) {
 
       await prisma.vocabulary.create({
         data: {
-          hanzi,
-          pinyin,
-          hanViet,
-          meaningVi,
-          exampleSentence,
-          examplePinyin,
-          exampleVi,
-          audioUrl: finalAudioUrl,
-          hskLevel: hskLevel as any,
-          wordType,
+          hanzi:       hanzi!,
+          pinyin:      pinyin!,
+          meaningVi:   meaningVi!,
+          hanViet:     hanViet!,
+          exampleSentence: exampleSentence ?? undefined,
+          examplePinyin:  examplePinyin  ?? undefined,
+          exampleVi:      exampleVi      ?? undefined,
+          audioUrl:    finalAudioUrl ?? undefined,
+          hskLevel:    hskLevel as any,
+          wordType:    wordType ?? undefined,
         },
       });
 

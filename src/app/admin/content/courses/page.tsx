@@ -50,6 +50,10 @@ export default function AdminCoursesPage() {
     });
     const data = await res.json();
     setCreating(false);
+    if (!res.ok) {
+      alert(data.error ?? "Không thể tạo khoá học");
+      return;
+    }
     router.push(`/admin/content/courses/${data.course.id}/edit`);
   };
 

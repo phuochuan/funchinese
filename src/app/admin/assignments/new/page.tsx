@@ -244,7 +244,7 @@ export default function AdminAssignmentCreatePage() {
                     <div className="flex-1">
                       <p className="text-sm font-bold text-on-surface">Tất cả học viên</p>
                       <p className="text-xs text-on-surface-variant">
-                        {selectedCls?.studentCount ?? 0} Học sinh
+                        {selectedCls?.members?.length ?? 0} Học sinh
                       </p>
                     </div>
                     <span className="material-symbols-outlined text-secondary" style={{ fontSize: 20, fontVariationSettings: "'FILL' 1" }}>check_circle</span>

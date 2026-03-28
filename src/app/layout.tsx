@@ -37,7 +37,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${inter.variable} font-body bg-surface text-on-surface antialiased`}>
+      <body suppressHydrationWarning className={`${inter.variable} font-body bg-surface text-on-surface antialiased`}>
         {children}
       </body>
     </html>

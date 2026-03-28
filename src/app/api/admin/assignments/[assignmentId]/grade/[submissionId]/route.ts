@@ -45,7 +45,7 @@ export async function POST(
   });
 
   // Cập nhật status submission
-  const newStatus = reassign ? "REASSIGNED" : "GRADED";
+  const newStatus = reassign ? "SUBMITTED" : "GRADED";
   await prisma.submission.update({
     where: { id: submissionId },
     data: { status: newStatus },

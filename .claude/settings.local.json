@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx next:*)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(timeout /t 2 /nobreak)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(Get-ChildItem -Path \"D:\\\\workspace\\\\funchinese\\\\src\\\\app\\\\home\\\\student\\\\quiz\\\\[sessionId]\" -Recurse -Name)",
+      "Bash(node -e \":*)",
+      "Bash(powershell -Command \"Remove-Item -Path 'D:\\\\workspace\\\\funchinese\\\\node_modules\\\\.prisma\\\\client\\\\query_engine-windows.dll.node' -Force -ErrorAction SilentlyContinue; Get-ChildItem 'D:\\\\workspace\\\\funchinese\\\\node_modules\\\\.prisma\\\\client' -Recurse -Force | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue; Write-Host 'Cleaned'\")"
+    ]
+  }
+}

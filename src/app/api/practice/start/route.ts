@@ -8,6 +8,11 @@ function shuffle<T>(arr: T[]) {
   return arr.sort(() => Math.random() - 0.5);
 }
 
+function cleanOption(opt: string) {
+  // Strip "A. ", "B. ", etc. prefix so the UI can render its own letter label
+  return opt.replace(/^[A-D]\.\s*/, '');
+}
+
 export async function POST(req: NextRequest) {
   const { durationMinutes, level = 3 } = await req.json();
 
@@ -41,10 +46,12 @@ export async function POST(req: NextRequest) {
   const normalized = questions.map((q: any) => {
     let options: string[] = [];
 
-    if (q.options) {
-      options = q.options;
+    if (q.options && Array.isArray(q.options)) {
+      // Clean each option and shuffle
+      const raw = q.options.map(String).map(cleanOption);
+      options = shuffle(raw);
     } else {
-      // fallback tạo options fake
+      // fallback tạo options fake (no letter prefix — UI adds them)
       options = shuffle([
         q.meaningVi,
         'Sai 1',
@@ -60,6 +67,9 @@ export async function POST(req: NextRequest) {
       meaningVi: q.meaningVi,
       options,
       answer: q.answer,
+      audioUrl: q.audioUrl ?? null,
+      questionImageUrl: q.questionImageUrl ?? null,
+      type: q.type ?? 'MULTIPLE_CHOICE',
     };
   });
 
@@ -91,6 +101,9 @@ export async function POST(req: NextRequest) {
       questionText: `Nghĩa của chữ "${q.hanzi}" là gì?`,
       options: shuffle([...q.options]), // mỗi lần render khác nhau
       correctAnswer: q.answer,
+      audioUrl: q.audioUrl ?? null,
+      questionImageUrl: q.questionImageUrl ?? null,
+      type: q.type ?? 'MULTIPLE_CHOICE',
     })),
   });
 }

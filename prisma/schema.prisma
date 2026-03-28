@@ -529,5 +529,10 @@ model PracticeSession {
   expiresAt         DateTime
   questions         Json
   status            String
+  score             Int?
+  correctCount      Int?
+  totalQuestions    Int?
+  results           Json?
+  xpEarned          Int?
   createdAt         DateTime @default(now())
 }

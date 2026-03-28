@@ -54,7 +54,7 @@ export async function PUT(
       ...(body.title       !== undefined && { title:       body.title }),
       ...(body.description !== undefined && { description: body.description }),
       ...(body.imageUrls   !== undefined && { imageUrls:   body.imageUrls }),
-      ...(body.deadline    !== undefined && { deadline:    body.deadline ? new Date(body.deadline) : null }),
+      ...(body.deadline    !== undefined && body.deadline !== null && { deadline: new Date(body.deadline) }),
       ...(body.maxAttempts !== undefined && { maxAttempts: body.maxAttempts }),
       ...(body.allowLate   !== undefined && { allowLate:   body.allowLate }),
       ...(body.xpReward    !== undefined && { xpReward:    body.xpReward }),

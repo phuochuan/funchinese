@@ -5,8 +5,8 @@ import Link from "next/link";
 interface Question {
   id: string; code: string; hanzi: string; pinyin: string | null;
   meaningVi: string | null; hskLevel: number; type: string;
-  category: string | null; audioUrl: string | null; createdAt: string; options: Array | null, 
-  answer: string |null, explanation: string | null;
+  category: string | null; audioUrl: string | null; createdAt: string; options: Array<string> | null,
+  answer: string | null, explanation: string | null;
    // NEW
   questionText?: string | null;
   questionImageUrl?: string | null;
@@ -383,8 +383,8 @@ export default function AdminQuestionsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 overflow-hidden mb-6">
-        <table className="w-full">
+      <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 overflow-x-auto mb-6">
+        <table className="w-full min-w-[600px]">
           <thead>
             <tr className="border-b border-outline-variant/10 bg-surface-container">
               {["ID","Question Content","Type","Level","Actions"].map(h => (
@@ -404,32 +404,28 @@ export default function AdminQuestionsPage() {
                 <td className="px-5 py-4">
                   <span className="text-xs font-mono text-on-surface-variant">{q.code}</span>
                 </td>
-                <td className="px-5 py-4 max-w-sm">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-1 min-w-0">
-                      {q.questionText && (
-                          <p className="text-xs text-on-surface line-clamp-2">
-                            {q.questionText}
-                          </p>
-                        )}
-
-                        {q.questionImageUrl && (
-                          <img
-                            src={q.questionImageUrl}
-                            className="mt-2 max-h-16 rounded-md"
-                          />
-                        )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="chinese-text font-bold text-on-surface">{q.hanzi}</p>
-                    </div>
-                    {q.audioUrl && (
-                      <button onClick={() => new Audio(q.audioUrl!).play()}
-                        className="w-7 h-7 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 flex-shrink-0 transition-colors">
-                        <span className="material-symbols-outlined text-secondary" style={{ fontSize: 14, fontVariationSettings: "'FILL' 1" }}>volume_up</span>
-                      </button>
-                    )}
-                  </div>
+                <td className="px-5 py-4 max-w-xs">
+                  {/* Question image thumbnail */}
+                  {q.questionImageUrl && (
+                    <img
+                      src={q.questionImageUrl}
+                      alt="img"
+                      className="w-12 h-12 rounded-lg object-cover border border-outline-variant/20 mb-1.5"
+                    />
+                  )}
+                  {/* Question text */}
+                  {q.questionText ? (
+                    <p className="text-xs text-on-surface line-clamp-2">{q.questionText}</p>
+                  ) : (
+                    <p className="chinese-text font-bold text-on-surface">{q.hanzi}</p>
+                  )}
+                  {/* Audio */}
+                  {q.audioUrl && (
+                    <button onClick={() => new Audio(q.audioUrl!).play()}
+                      className="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center hover:bg-secondary/20 mt-1 transition-colors">
+                      <span className="material-symbols-outlined text-secondary" style={{ fontSize: 13, fontVariationSettings: "'FILL' 1" }}>volume_up</span>
+                    </button>
+                  )}
                 </td>
                 <td className="px-5 py-4">
                   <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${TYPE_CONFIG[q.type]?.cls ?? "bg-surface-container text-on-surface-variant"}`}>

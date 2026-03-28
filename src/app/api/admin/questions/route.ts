@@ -60,7 +60,8 @@ export async function POST(req: NextRequest) {
   if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { hanzi, pinyin, meaningVi, meaningEn, hskLevel, type, options, answer, explanation, category, tags, audioUrl } = body;
+  console.log("[ADMIN CREATE QUESTION] body:", JSON.stringify(body));
+  const { hanzi, pinyin, meaningVi, meaningEn, hskLevel, type, options, answer, explanation, category, tags, audioUrl, questionText, questionImageUrl } = body;
 
   if (!hanzi || !hskLevel) {
     return NextResponse.json({ error: "Thiếu hanzi hoặc hskLevel" }, { status: 400 });
@@ -84,6 +85,8 @@ export async function POST(req: NextRequest) {
       category: category ?? null,
       tags:     tags ?? [],
       audioUrl: audioUrl ?? null,
+      questionText:     questionText     ?? null,
+      questionImageUrl: questionImageUrl ?? null,
     },
   });
 

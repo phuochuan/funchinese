@@ -2,6 +2,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+function shuffle<T>(arr: T[]) {
+  return arr.sort(() => Math.random() - 0.5);
+}
+
+function cleanOption(opt: string) {
+  return opt.replace(/^[A-D]\.\s*/, '');
+}
+
 export async function POST(req: NextRequest) {
   const { sessionId } = await req.json();
 
@@ -44,18 +52,19 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json({
-    questions: newQuestions.map(q => ({
-      id: q.id,
-      hanzi: q.hanzi,
-      questionText: `Nghĩa của chữ "${q.hanzi}" là gì?`,
-      options:
-        (q.options as string[]) || [
-          'A. ' + q.meaningVi,
-          'B. Sai',
-          'C. Sai',
-          'D. Sai',
-        ],
-      correctAnswer: q.answer,
-    })),
+    questions: newQuestions.map(q => {
+      const rawOptions: string[] = (q.options as string[]) || [q.meaningVi, 'Sai 1', 'Sai 2', 'Sai 3'];
+      const cleaned = rawOptions.map(String).map(cleanOption);
+      return {
+        id: q.id,
+        hanzi: q.hanzi,
+        questionText: `Nghĩa của chữ "${q.hanzi}" là gì?`,
+        options: shuffle(cleaned),
+        correctAnswer: q.answer,
+        audioUrl: q.audioUrl ?? null,
+        questionImageUrl: q.questionImageUrl ?? null,
+        type: q.type ?? 'MULTIPLE_CHOICE',
+      };
+    }),
   });
 }

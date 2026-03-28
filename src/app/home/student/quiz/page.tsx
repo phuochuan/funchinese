@@ -26,7 +26,7 @@ export default function PracticeSetup() {
       const data = await res.json();
 
       if (data.sessionId) {
-        router.push(`/practice/${data.sessionId}`);
+        router.push(`/home/student/quiz/${data.sessionId}`);
       } else {
         alert('Không tạo được phiên luyện tập!');
       }

@@ -4,21 +4,22 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { addXP, updateStreak } from "@/lib/xp";
 
-// ─── GET — lấy từ vựng cho phiên luyện ───────────────────────────────────────
+// ─── GET — lấy từ vựng cho phiên luyện HOẶC kết quả phiên đã luyện ─────────
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.keycloakId) {
+  const authSession = await auth();
+  if (!authSession?.user?.keycloakId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const dbUser = await prisma.user.findUnique({
-    where: { keycloakId: session.user.keycloakId },
+    where: { keycloakId: authSession.user.keycloakId },
     select: { id: true },
   });
   if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
   const userId   = dbUser.id;
   const sp       = req.nextUrl.searchParams;
+  const sessionId = sp.get("sessionId");
   const lessonId = sp.get("lessonId");
   const hskLevel = sp.get("hsk");
   const source   = sp.get("source"); // "weak" = ôn từ yếu
@@ -82,8 +83,39 @@ export async function GET(req: NextRequest) {
     words           = uvs.map(uv => uv.vocabulary);
   }
 
+  // ── Nguồn 0: lấy kết quả phiên đã luyện (cho trang review) ─────────────────
+  else if (sessionId) {
+    const quizSession = await prisma.quizSession.findUnique({
+      where: { id: sessionId },
+    });
+
+    if (!quizSession || quizSession.userId !== userId) {
+      return NextResponse.json({ error: "Phiên không tồn tại" }, { status: 404 });
+    }
+
+    const wrongIds = (quizSession.results as any[])
+      .filter((r: any) => !r.correct)
+      .map((r: any) => r.vocabId);
+
+    const weakWords = wrongIds.length > 0
+      ? await prisma.vocabulary.findMany({
+          where: { id: { in: wrongIds } },
+          select: { id: true, hanzi: true, pinyin: true, meaningVi: true, audioUrl: true },
+        })
+      : [];
+
+    return NextResponse.json({
+      xpEarned:    quizSession.xpEarned,
+      correctQ:    quizSession.correctQ,
+      totalQ:      quizSession.totalQ,
+      accuracy:    Math.round((quizSession.correctQ / quizSession.totalQ) * 100),
+      weakWords,
+      durationSec: quizSession.durationSec,
+    });
+  }
+
   else {
-    return NextResponse.json({ error: "Cần lessonId, hsk hoặc source=weak" }, { status: 400 });
+    return NextResponse.json({ error: "Cần lessonId, hsk, source=weak hoặc sessionId" }, { status: 400 });
   }
 
   // Lấy tiến độ từng từ của user

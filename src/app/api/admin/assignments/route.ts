@@ -3,6 +3,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
+interface CreateAssignmentBody {
+  title: string;
+  description?: string;
+  imageUrls?: string[];
+  deadline: string;
+  maxAttempts?: number;
+  allowLate?: boolean;
+  xpReward?: number;
+  assignType?: "CLASS" | "INDIVIDUAL";
+  classId?: string;
+  assigneeIds?: string[];
+}
+
 async function requireTeacher() {
   const session = await auth();
   if (!session?.user?.keycloakId || session.user.role !== "teacher") return null;
@@ -105,7 +118,7 @@ export async function POST(req: NextRequest) {
   const user = await requireTeacher();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await req.json();
+  const body: CreateAssignmentBody = await req.json();
   const {
     title, description, imageUrls, deadline,
     maxAttempts, allowLate, xpReward,
@@ -113,22 +126,23 @@ export async function POST(req: NextRequest) {
   } = body;
 
   if (!title) return NextResponse.json({ error: "Tiêu đề là bắt buộc" }, { status: 400 });
+  if (!deadline) return NextResponse.json({ error: "Hạn nộp là bắt buộc" }, { status: 400 });
 
- const assignment = await prisma.assignment.create({
-    data: {
+ const data: Record<string, unknown> = {
       title,
       description:  description  ?? null,
       imageUrls:    imageUrls    ?? [],
-      deadline:     deadline     ? new Date(deadline) : null,
+      deadline:     new Date(deadline),
       maxAttempts:  maxAttempts  ?? 1,
       allowLate:    allowLate    ?? true,
       xpReward:     xpReward     ?? 50,
       assignType:   assignType   ?? "CLASS",
-      ...(classId ? {
-        class: { connect: { id: classId } }
-      } : {}),
-    },
-  });
+    };
+    if (classId) {
+      data.class = { connect: { id: classId } };
+    }
+
+ const assignment = await prisma.assignment.create({ data: data as Parameters<typeof prisma.assignment.create>[0]["data"] });
 
   // Nếu assign cá nhân → tạo AssignmentAssignee
   if (assignType === "INDIVIDUAL" && assigneeIds?.length) {
