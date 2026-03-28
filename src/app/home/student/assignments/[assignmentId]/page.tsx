@@ -88,8 +88,9 @@ export default function StudentSubmitPage({ params }: { params: Promise<{ assign
   const handleVideoUpload = async (files: FileList) => {
     for (const file of Array.from(files)) {
       setUploading(true);
-      const fd = new FormData(); fd.append("file", file); fd.append("type", "audio"); // audio bucket handles video too
-      const res  = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const fd   = new FormData();
+      fd.append("file", file);
+      const res  = await fetch("/api/student/upload-video", { method: "POST", body: fd });
       const data = await res.json();
       setUploading(false);
       if (data.url) setMediaUrls(prev => [...prev, data.url]);
@@ -340,7 +341,7 @@ export default function StudentSubmitPage({ params }: { params: Promise<{ assign
 
         {/* Footer */}
         <p className="text-center text-xs text-on-surface-variant py-4">
-          © 2023 Scholar's Atelier – Nền tảng học tập Hán Nôm cao cấp.
+          © 2026 FunChinese – Learn Chinese the fun way.
         </p>
       </div>
     </div>

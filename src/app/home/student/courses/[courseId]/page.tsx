@@ -246,7 +246,7 @@ export default function CourseDetailPage({
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-white/60 text-xs mb-4">
             <Link href="/home/student/courses" className="hover:text-white transition-colors">
-              Lộ trình học
+              Chương trình
             </Link>
             <span className="material-symbols-outlined" style={{ fontSize: 14 }}>chevron_right</span>
             {loading

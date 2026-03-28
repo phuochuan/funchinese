@@ -59,6 +59,7 @@ model User {
 
   // Relations
   classMembers      ClassMember[]
+  profile           UserProfile?
   lessonProgress    LessonProgress[]
   userVocabulary    UserVocabulary[]
   submissions       Submission[]
@@ -494,7 +495,6 @@ enum SubmissionStatus {
   DRAFT
   SUBMITTED
   GRADED
-  Assignment 
 }
 
 model HskQuestion {
@@ -535,4 +535,30 @@ model PracticeSession {
   results           Json?
   xpEarned          Int?
   createdAt         DateTime @default(now())
+}
+
+// ─── Account Settings ────────────────────────────────────────────────────────
+
+enum Gender {
+  male
+  female
+  other
+  prefer_not_to_say
+}
+
+model UserProfile {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  bio           String?
+  phone         String?
+  dateOfBirth   DateTime?
+  gender        Gender?
+  avatar        String?                        // Local avatar URL managed by the app
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
 }

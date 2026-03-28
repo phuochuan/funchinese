@@ -1,5 +1,6 @@
 // src/components/auth/LoginButton.tsx
-import { signIn, signOut } from "@/auth"
+import { signIn } from "@/auth"
+import { keycloakSignOut } from "@/actions/auth"
 
 export function LoginButton() {
   return (
@@ -11,7 +12,7 @@ export function LoginButton() {
 
 export function LogoutButton() {
   return (
-    <form action={async () => { "use server"; await signOut() }}>
+    <form action={async () => { "use server"; await keycloakSignOut() }}>
       <button type="submit">Đăng xuất</button>
     </form>
   )

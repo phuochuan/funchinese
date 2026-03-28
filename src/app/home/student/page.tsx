@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { signOut } from "next-auth/react";
 import { useDashboard, type DashboardData } from "@/hooks/useDashboard";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
@@ -34,7 +33,7 @@ function Skeleton({ className = "" }: { className?: string }) {
 // ─── Nav items ────────────────────────────────────────────────────────────────
 const NAV = [
   { href: "/home/student",             icon: "dashboard",         label: "Bảng điều khiển" },
-  { href: "/home/student/courses",     icon: "menu_book",         label: "Lộ trình học"    },
+  { href: "/home/student/courses",     icon: "menu_book",         label: "Chương trình học"    },
   { href: "/home/student/practice",    icon: "record_voice_over", label: "Luyện tập"       },
   { href: "/home/student/assignments", icon: "assignment",        label: "Bài tập"         },
   { href: "/home/student/community",   icon: "group",             label: "Cộng đồng"       },

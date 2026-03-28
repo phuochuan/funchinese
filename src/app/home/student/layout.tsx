@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+import Image from "next/image";
+import { keycloakSignOut } from "@/actions/auth";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useDashboard } from "@/hooks/useDashboard";
@@ -10,15 +11,26 @@ import { useDashboard } from "@/hooks/useDashboard";
 const NAV = [
   { href: "/home/student",             icon: "dashboard",         label: "Bảng điều khiển" },
     { href: "/home/student/schedule", icon: "calendar_month", label: "Lịch học" },
-  { href: "/home/student/courses",     icon: "menu_book",         label: "Lộ trình học"    },
-  { href: "/home/student/practice",    icon: "record_voice_over", label: "Luyện tập"       },
-  { href: "/home/student/assignments", icon: "assignment",        label: "Bài tập"         },
+  { href: "/home/student/courses",     icon: "menu_book",         label: "Chương trình"    },
+  // { href: "/home/student/practice",    icon: "record_voice_over", label: "Luyện tập"       },
+  { href: "/home/student/assignments", icon: "favorite",           label: "Bài tập"         },
   { href: "/home/student/quiz",   icon: "circle",             label: "Quiz"       },
 ];
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
+
+  async function handleLogout() {
+    try {
+      const keys = Object.keys(sessionStorage);
+      for (const key of keys) {
+        if (key.startsWith("quiz_result_")) sessionStorage.removeItem(key);
+      }
+    } catch {}
+    await keycloakSignOut();
+    window.location.href = "/api/auth/logout";
+  }
 
   // Active nếu pathname bắt đầu bằng href (để /courses/[id] vẫn highlight Lộ trình học)
   const isActive = (href: string) =>
@@ -41,15 +53,13 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
       `}>
         {/* Logo */}
         <div className="px-5 py-5 border-b border-outline-variant/10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
-              <span className="text-on-primary font-extrabold text-sm">FC</span>
-            </div>
+          <Link href="/home/student" className="flex items-center gap-2.5">
+            <Image src="/logo.png" alt="funchinese" width={36} height={36} className="object-contain" />
             <div>
               <p className="font-extrabold text-sm text-on-surface leading-none">funchinese</p>
               <p className="text-xs text-on-surface-variant mt-0.5">Học tiếng Trung</p>
             </div>
-          </div>
+          </Link>
           <button onClick={onClose}
             className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container">
             <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 20 }}>close</span>
@@ -69,23 +79,23 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
             </Link>
           ))}
 
-          <Link href="/home/student/vocabulary" onClick={onClose}
+          {/* <Link href="/home/student/vocabulary" onClick={onClose}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all
               ${isActive("/home/student/vocabulary")
                 ? "bg-primary text-on-primary"
                 : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"}`}>
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>library_books</span>
             Kho từ vựng
-          </Link>
+          </Link> */}
         </nav>
 
         {/* Premium upsell */}
-        <div className="mx-3 mb-3 p-4 bg-primary-container rounded-2xl">
+        {/* <div className="mx-3 mb-3 p-4 bg-primary-container rounded-2xl">
           <p className="text-xs font-bold text-on-primary-container mb-1">Sẵn sàng bứt phá?</p>
           <button className="w-full bg-primary text-on-primary text-xs font-bold py-2 rounded-lg hover:brightness-110 transition-all mt-1">
             Nâng cấp Premium
           </button>
-        </div>
+        </div> */}
 
         {/* Footer */}
         <div className="border-t border-outline-variant/10 px-3 py-3 space-y-0.5">
@@ -94,7 +104,7 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>settings</span>
             Cài đặt
           </Link>
-          <button onClick={() => signOut({ callbackUrl: "/" })}
+          <button onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-on-surface-variant hover:bg-surface-container transition-all">
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>logout</span>
             Đăng xuất

@@ -5,7 +5,7 @@ export interface DashboardData {
   user: {
     id: string;
     name: string;
-    image: string | null;
+    image: string | null;  // app avatar (falls back to Keycloak image)
     xp: number;
     level: string;
     streakDays: number;

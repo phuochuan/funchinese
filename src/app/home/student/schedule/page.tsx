@@ -22,14 +22,15 @@ interface ScheduleData {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+// dayOfWeek: 1=CN 2=T2 3=T3 4=T4 5=T5 6=T6 7=T7
 const DAYS = [
-  { idx: 1, label: "THỨ HAI"   },
-  { idx: 2, label: "THỨ BA"    },
-  { idx: 3, label: "THỨ TƯ"    },
-  { idx: 4, label: "THỨ NĂM"   },
-  { idx: 5, label: "THỨ SÁU"   },
-  { idx: 6, label: "THỨ BẢY"   },
-  { idx: 7, label: "CHỦ NHẬT"  },
+  { idx: 1, label: "CHỦ NHẬT"  },  // idx 1 = CN  (Sun) — dayOfWeek 1
+  { idx: 2, label: "THỨ HAI"   },  // idx 2 = T2  (Mon) — dayOfWeek 2
+  { idx: 3, label: "THỨ BA"    },  // idx 3 = T3  (Tue) — dayOfWeek 3
+  { idx: 4, label: "THỨ TƯ"    },  // idx 4 = T4  (Wed) — dayOfWeek 4
+  { idx: 5, label: "THỨ NĂM"   },  // idx 5 = T5  (Thu) — dayOfWeek 5
+  { idx: 6, label: "THỨ SÁU"   },  // idx 6 = T6  (Fri) — dayOfWeek 6
+  { idx: 7, label: "THỨ BẢY"   },  // idx 7 = T7  (Sat) — dayOfWeek 7
 ];
 
 const STATUS_CONFIG: Record<string, { label: string; cls: string; textCls: string }> = {
@@ -118,7 +119,7 @@ function JoinClassModal({ onClose, onJoined }: { onClose: () => void; onJoined: 
               <div className="flex flex-wrap gap-2">
                 {preview.schedules?.map((s: any) => (
                   <span key={s.id} className="text-xs px-2.5 py-1 bg-primary/10 text-primary rounded-lg font-semibold">
-                    T{s.dayOfWeek === 1 ? "CN" : s.dayOfWeek} {s.startTime}–{s.endTime}
+                    {s.dayOfWeek === 1 ? "CN" : "T" + (s.dayOfWeek - 1)} {s.startTime}–{s.endTime}
                   </span>
                 ))}
               </div>
@@ -196,11 +197,16 @@ export default function StudentSchedulePage() {
   const nextWeek = () => { const m = new Date(monday); m.setDate(m.getDate() + 7); setMonday(m); };
 
   const sunday       = new Date(monday); sunday.setDate(monday.getDate() + 6);
-  const todayDayIdx  = new Date().getDay(); // 0=Sun
-  const [selectedDay, setSelectedDay] = useState(todayDayIdx === 0 ? 7 : todayDayIdx);
+  // JS getDay(): 0=Sun 1=Mon...6=Sat → schema: 1=CN 2=T2...7=T7
+  const todayDayIdx  = (() => {
+    const d = new Date().getDay(); // 0=Sun
+    return d === 0 ? 7 : d;
+  })();
+  const [selectedDay, setSelectedDay] = useState(todayDayIdx);
 
+  // dayIdx: 1=CN(Sun)...7=T7(Sat) — Monday is at idx 2
   const getDayDate = (dayIdx: number) => {
-    const d = new Date(monday); d.setDate(monday.getDate() + dayIdx - 1); return d;
+    const d = new Date(monday); d.setDate(monday.getDate() + (dayIdx - 2)); return d;
   };
 
   const isToday = (dayIdx: number) => {

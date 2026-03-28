@@ -12,10 +12,15 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SinoBridge Pro — Học tiếng Trung cho người Việt",
+  title: "funchinese — Học tiếng Trung cho người Việt",
   description:
     "Nền tảng học tiếng Trung hiện đại nhất dành riêng cho người Việt. Tận dụng ưu thế Hán Việt để làm chủ 5000+ từ vựng.",
   keywords: ["học tiếng Trung", "HSK", "Hán Việt", "tiếng Trung cho người Việt"],
+  icons: {
+    icon:    [{ url: "/favicon.ico",  sizes: "any"  }],
+    apple:   [{ url: "/favicon-192x192.png"           }],
+    other:   [{ url: "/favicon-512x512.png", sizes: "512x512" }],
+  },
 };
 
 export default function RootLayout({

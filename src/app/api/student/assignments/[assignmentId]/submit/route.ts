@@ -56,14 +56,15 @@ export async function POST(
     orderBy: { attempt: "desc" },
   });
 
-  if (!existing) return NextResponse.json({ error: "Bạn không có quyền nộp bài này" }, { status: 403 });
-  if (existing.status === "SUBMITTED") return NextResponse.json({ error: "Bạn đã nộp bài rồi" }, { status: 400 });
+  if (existing?.status === "SUBMITTED") {
+    return NextResponse.json({ error: "Bạn đã nộp bài rồi" }, { status: 400 });
+  }
 
-  // Nếu reassign → tạo submission mới với attempt++
-  const isReassign = existing.status === "REASSIGNED";
+  // Nếu chưa có draft hoặc đang REASSIGNED → tạo submission mới
+  const isReassign = existing?.status === "REASSIGNED";
   let submission;
 
-  if (isReassign) {
+  if (!existing || isReassign) {
     submission = await prisma.submission.create({
       data: {
         assignmentId,
@@ -71,7 +72,8 @@ export async function POST(
         status:      "SUBMITTED",
         textContent: textContent ?? null,
         mediaUrls:   mediaUrls   ?? [],
-        attempt:     existing.attempt + 1,
+        answers:     [],
+        attempt:     isReassign ? existing!.attempt + 1 : 1,
         submittedAt: new Date(),
       },
     });
@@ -82,6 +84,7 @@ export async function POST(
         status:      "SUBMITTED",
         textContent: textContent ?? null,
         mediaUrls:   mediaUrls   ?? [],
+        answers:     [],
         submittedAt: new Date(),
       },
     });

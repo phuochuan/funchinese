@@ -52,7 +52,7 @@ export default function CoursesPage() {
     <div className="p-4 md:p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-extrabold text-on-surface">Lộ trình học</h1>
+        <h1 className="text-2xl font-extrabold text-on-surface">Chương trình học</h1>
         <p className="text-sm text-on-surface-variant mt-1">
           Chinh phục tiếng Trung từ HSK 1 đến HSK 6
         </p>

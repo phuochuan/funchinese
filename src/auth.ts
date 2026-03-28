@@ -60,10 +60,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         console.log("[auth] Keycloak roles:", roles);
 
         token.keycloakId = profile.sub;
-        token.role       = roles.includes("teacher") ? "teacher" : "student";
-        token.email      = profile.email as string;
-        token.name       = (profile.name ?? profile.preferred_username) as string;
-        token.picture    = (profile.picture as string) ?? null;
+        token.role        = roles.includes("teacher") ? "teacher" : "student";
+        token.email       = profile.email as string;
+        token.name        = (profile.name ?? profile.preferred_username) as string;
+        token.picture     = (profile.picture as string) ?? null;
+        // id_token is required by Keycloak SLO endpoint
+        token.id_token    = (account as any).id_token as string | undefined;
       }
       return token;
     },

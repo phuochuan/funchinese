@@ -21,8 +21,9 @@ interface ClassDetail {
   stats: { totalStudents: number; totalSessions: number; doneSessions: number; remainingSessions: number };
 }
 
+// dayOfWeek: 1=T2 2=T3 3=T4 4=T5 5=T6 6=T7 7=CN
 const DAY = ["","Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ Nhật"];
-const DAY_SHORT = ["","THỨ\n2","THỨ\n3","THỨ\n4","THỨ\n5","THỨ\n6","THỨ\n7","CN"];
+//                    ↑1        ↑2        ↑3        ↑4        ↑5        ↑6        ↑7
 
 function Skeleton({ className = "" }: { className?: string }) {
   return <div className={`animate-pulse bg-surface-container rounded-xl ${className}`} />;
@@ -63,9 +64,13 @@ function AddScheduleModal({ classId, onClose, onSaved }: {
             <label className="text-xs font-bold text-on-surface-variant uppercase mb-1.5 block">Thứ trong tuần</label>
             <select value={form.dayOfWeek} onChange={e => setForm(f => ({ ...f, dayOfWeek: +e.target.value }))}
               className="w-full border border-outline-variant/30 rounded-xl px-4 py-3 text-sm outline-none focus:border-primary">
-              {[2,3,4,5,6,7,1].map(d => (
-                <option key={d} value={d}>{DAY[d]}</option>
-              ))}
+              <option value={2}>Thứ 2</option>
+              <option value={3}>Thứ 3</option>
+              <option value={4}>Thứ 4</option>
+              <option value={5}>Thứ 5</option>
+              <option value={6}>Thứ 6</option>
+              <option value={7}>Thứ 7</option>
+              <option value={1}>Chủ Nhật</option>
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">

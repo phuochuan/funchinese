@@ -43,6 +43,7 @@ export async function GET() {
         select: {
           id: true, name: true, image: true, xp: true,
           level: true, streakDays: true, maxStreak: true,
+          profile: { select: { avatar: true } },
         },
       }),
 
@@ -133,7 +134,11 @@ export async function GET() {
     );
 
     return NextResponse.json({
-      user: { ...user, levelInfo: getLevelFromXP(user.xp) },
+      user: {
+        ...user,
+        image: user.profile?.avatar ?? user.image,
+        levelInfo: getLevelFromXP(user.xp),
+      },
       stats: {
         wordsLearned:      wordCount,
         assignmentsGraded: assignmentStats._count.id,

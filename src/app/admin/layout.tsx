@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+import Image from "next/image";
+import { keycloakSignOut } from "@/actions/auth";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
@@ -18,6 +19,17 @@ const NAV = [
 
 function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
+
+  async function handleLogout() {
+    try {
+      const keys = Object.keys(sessionStorage);
+      for (const key of keys) {
+        if (key.startsWith("quiz_result_")) sessionStorage.removeItem(key);
+      }
+    } catch {}
+    await keycloakSignOut();
+    window.location.href = "/api/auth/logout";
+  }
 
   const isActive = (href: string) =>
     href === "/admin" ? pathname === href : pathname.startsWith(href);
@@ -37,10 +49,13 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
       `}>
         {/* Logo */}
         <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
-          <div>
-            <p className="font-extrabold text-white leading-none">funchinese</p>
-            <p className="text-xs text-white/50 mt-0.5 uppercase tracking-wider">Hệ thống quản lý</p>
-          </div>
+          <Link href="/admin" className="flex items-center gap-2.5">
+            <Image src="/logo.png" alt="funchinese" width={32} height={32} className="object-contain" />
+            <div>
+              <p className="font-extrabold text-white leading-none">funchinese</p>
+              <p className="text-xs text-white/50 mt-0.5 uppercase tracking-wider">Hệ thống quản lý</p>
+            </div>
+          </Link>
           <button onClick={onClose} className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10">
             <span className="material-symbols-outlined text-white/70" style={{ fontSize: 20 }}>close</span>
           </button>
@@ -76,7 +91,7 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>settings</span>
             Cài đặt
           </Link>
-          <button onClick={() => signOut({ callbackUrl: "/" })}
+          <button onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-white/60 hover:bg-white/10 hover:text-white transition-all">
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>logout</span>
             Đăng xuất

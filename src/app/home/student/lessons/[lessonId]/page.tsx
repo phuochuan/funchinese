@@ -407,7 +407,7 @@ export default function LessonPage({
       {/* ── Breadcrumb ── */}
       <div className="py-4 flex items-center gap-1.5 text-xs text-on-surface-variant">
         <Link href="/home/student/courses" className="hover:text-primary transition-colors">
-          Lộ trình học
+          Chương trình
         </Link>
         <span className="material-symbols-outlined" style={{ fontSize: 14 }}>chevron_right</span>
         {loading ? <Skeleton className="h-3 w-24 inline-block" /> : (

@@ -1,20 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 
 // ─── Shared style ─────────────────────────────────────────────────────────────
 const FILL = { fontVariationSettings: "'FILL' 1" };
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const HSK_LEVELS = [
-  { num: "01", badge: "Sơ cấp",    title: "HSK 1 – Nhập môn",          desc: "150 từ vựng. Làm quen với Pinyin và các nét cơ bản.",              lessons: 45,  hours: 12  },
-  { num: "02", badge: "Sơ cấp",    title: "HSK 2 – Giao tiếp cơ bản",  desc: "300 từ vựng. Hội thoại về các chủ đề đời sống hàng ngày.",        lessons: 60,  hours: 24  },
-  { num: "03", badge: "Trung cấp", title: "HSK 3 – Làm chủ ngữ pháp",  desc: "600 từ vựng. Đọc hiểu văn bản ngắn và viết luận cơ bản.",         lessons: 80,  hours: 48  },
-  { num: "04", badge: "Trung cấp", title: "HSK 4 – Phản xạ tự nhiên",  desc: "1200 từ vựng. Thảo luận các vấn đề phức tạp và chuyên sâu.",      lessons: 100, hours: 72  },
-  { num: "05", badge: "Cao cấp",   title: "HSK 5 – Thông thạo",         desc: "2500 từ vựng. Đọc báo và xem phim không cần phụ đề.",             lessons: 120, hours: 120 },
-  { num: "06", badge: "Bậc thầy", title: "HSK 6 – Chuyên gia",          desc: "5000+ từ vựng. Ngôn ngữ bậc thầy, tương đương người bản xứ.",     lessons: 150, hours: 200 },
-];
+
 
 const TESTIMONIALS = [
   {
@@ -49,6 +42,7 @@ function Navbar() {
       <div className="container mx-auto h-full px-6 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
+          <Image src="/logo.png" alt="funchinese" width={32} height={32} className="object-contain" />
           <span className="text-xl font-extrabold tracking-tight text-primary">
             fun<span className="text-secondary">chinese</span>
           </span>
@@ -133,19 +127,17 @@ function Hero() {
         {/* Left */}
         <div className="flex flex-col justify-center">
           <span className="inline-block px-4 py-1.5 bg-primary-fixed text-on-primary-fixed-variant rounded-full text-xs font-bold mb-5 w-max">
-            Độc quyền cho người Việt
+            Dành cho người Việt học tiếng Trung
           </span>
 
           <h1 className="text-5xl md:text-6xl font-extrabold text-on-surface leading-[1.1] tracking-tight mb-6">
-            Học tiếng Trung{" "}
-            <span className="text-primary">hiệu quả</span>
-            <br />— dành riêng cho người Việt
+            Học tiếng Trung
+            <br /><span className="text-primary">cùng nhau mỗi ngày</span>
           </h1>
 
           <p className="text-lg text-on-surface-variant leading-relaxed mb-8 max-w-lg">
-            Tận dụng ưu thế Hán Việt để làm chủ 5000+ từ vựng trong thời gian
-            ngắn nhất. Hệ thống học thông minh dựa trên tư duy ngôn ngữ của
-            người Việt Nam.
+            Tận dụng nền tảng Hán Việt sẵn có để học từ vựng nhanh hơn.
+            Phương pháp đơn giản, lộ trình rõ ràng — phù hợp cho người bận rộn.
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -171,7 +163,7 @@ function Hero() {
               ))}
             </div>
             <div className="text-sm">
-              <p className="font-bold text-on-surface">15,000+ Học viên</p>
+              <p className="font-bold text-on-surface">Nhiều học viên</p>
               <p className="text-on-surface-variant">đã bắt đầu chinh phục HSK</p>
             </div>
           </div>
@@ -227,9 +219,9 @@ function Features() {
     <section id="features" className="py-20 px-6 bg-surface-container-low">
       <div className="container mx-auto">
         <div className="text-center max-w-xl mx-auto mb-14">
-          <h2 className="text-3xl font-extrabold mb-4">Công cụ học tập hiện đại</h2>
+          <h2 className="text-3xl font-extrabold mb-4">Những gì bạn cần để bắt đầu</h2>
           <p className="text-on-surface-variant">
-            Mọi thứ bạn cần để phát triển toàn diện kỹ năng tiếng Trung từ cơ bản đến nâng cao.
+            Những công cụ cơ bản nhưng hiệu quả, giúp bạn học tiếng Trung mỗi ngày.
           </p>
         </div>
 
@@ -240,9 +232,9 @@ function Features() {
               <div className="w-12 h-12 bg-primary-fixed rounded-2xl flex items-center justify-center mb-6">
                 <span className="material-symbols-outlined text-primary">psychology</span>
               </div>
-              <h3 className="text-xl font-bold mb-3">Phòng tập Quiz thông minh</h3>
+              <h3 className="text-xl font-bold mb-3">Quiz luyện tập</h3>
               <p className="text-on-surface-variant text-sm leading-relaxed max-w-sm">
-                Luyện tập với hàng ngàn câu hỏi được cá nhân hóa theo trình độ. Hệ thống tự động nhận diện lỗ hổng kiến thức để bổ sung kịp thời.
+                Hàng ngàn câu hỏi theo từng cấp độ HSK. Tự động gợi ý những từ bạn hay quên để ôn luyện kịp thời.
               </p>
             </div>
             <div className="mt-6 overflow-hidden rounded-xl bg-surface-container-high h-32 relative">
@@ -261,9 +253,9 @@ function Features() {
               <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6">
                 <span className="material-symbols-outlined text-white">link</span>
               </div>
-              <h3 className="text-xl font-bold mb-3">Hán Việt cầu nối</h3>
+              <h3 className="text-xl font-bold mb-3">Gốc Hán Việt</h3>
               <p className="text-on-primary/80 text-sm leading-relaxed">
-                Độc quyền phương pháp ghi nhớ từ vựng thông qua âm Hán Việt, giúp người Việt hiểu sâu và nhớ lâu hơn 300%.
+                Mỗi từ tiếng Trung đều có gốc Hán Việt. Khi hiểu gốc, bạn sẽ nhớ từ đó dễ dàng hơn rất nhiều.
               </p>
             </div>
             <div className="relative z-10 mt-4 flex justify-end">
@@ -303,42 +295,96 @@ function Features() {
   );
 }
 
-// ─── HSK Levels ───────────────────────────────────────────────────────────────
-function HskLevels() {
+
+// ─── DATA ───────────────────────────────────────────────────────────────
+const HSK_LEVELS = [
+  {
+    num: 1,
+    title: "HSK 1 – Nhập môn",
+    badge: "Beginner",
+    desc: "Làm quen với tiếng Trung, phát âm, pinyin và các mẫu câu cơ bản trong giao tiếp hàng ngày.",
+  },
+  {
+    num: 2,
+    title: "HSK 2 – Cơ bản",
+    badge: "Elementary",
+    desc: "Mở rộng khả năng giao tiếp với các tình huống quen thuộc như mua sắm, hỏi đường, giới thiệu bản thân.",
+  },
+  {
+    num: 3,
+    title: "HSK 3 – Sơ trung cấp",
+    badge: "Intermediate",
+    desc: "Có thể giao tiếp cơ bản trong công việc và đời sống, hiểu các đoạn hội thoại đơn giản.",
+  },
+  {
+    num: 4,
+    title: "HSK 4 – Trung cấp",
+    badge: "Upper-Intermediate",
+    desc: "Sử dụng tiếng Trung linh hoạt hơn, đọc hiểu nội dung dài và giao tiếp trôi chảy hơn.",
+  },
+  {
+    num: 5,
+    title: "HSK 5 – Trung cao cấp",
+    badge: "Advanced",
+    desc: "Đọc báo, xem phim và thảo luận nhiều chủ đề phức tạp với người bản xứ.",
+  },
+  {
+    num: 6,
+    title: "HSK 6 – Cao cấp",
+    badge: "Mastery",
+    desc: "Sử dụng tiếng Trung thành thạo trong học thuật và công việc chuyên sâu.",
+  },
+];
+
+// ─── COMPONENT ──────────────────────────────────────────────────────────
+ function HskLevels() {
   return (
     <section id="hsk" className="py-20 px-6">
       <div className="container mx-auto">
+        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div className="max-w-lg">
-            <h2 className="text-3xl font-extrabold mb-3">Lộ trình HSK Chuẩn</h2>
+            <h2 className="text-3xl font-extrabold mb-3">
+              Lộ trình học theo cấp HSK
+            </h2>
             <p className="text-on-surface-variant">
-              Thiết kế theo khung tham chiếu ngôn ngữ mới nhất. Mỗi cấp độ đều được tối ưu hóa cho tốc độ học của người Việt.
+              Từ HSK 1 đến HSK 6, mỗi cấp độ có định hướng rõ ràng giúp bạn tiến bộ từng bước.
             </p>
           </div>
-          <Link href="/courses" className="text-primary font-bold flex items-center gap-1 hover:underline whitespace-nowrap text-sm">
-            Xem chi tiết khung chương trình
-            <span className="material-symbols-outlined text-lg">arrow_forward</span>
+
+          <Link
+            href="/courses"
+            className="text-primary font-bold flex items-center gap-1 hover:underline whitespace-nowrap text-sm"
+          >
+            Xem chi tiết
+            <span className="material-symbols-outlined text-lg">
+              arrow_forward
+            </span>
           </Link>
         </div>
 
+        {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {HSK_LEVELS.map((h) => (
             <Link
               key={h.num}
               href={`/courses/hsk${h.num}`}
-              className="p-7 rounded-3xl bg-surface-container-low border border-transparent hover:border-primary hover:shadow-md transition-all group"
+              className="p-7 rounded-3xl bg-surface-container-low hover:shadow-lg hover:-translate-y-1 active:scale-[0.98] transition-all group"
             >
-              <div className="flex items-center justify-between mb-5">
-                <span className="text-4xl font-black text-primary/20 group-hover:text-primary/40 transition-colors">{h.num}</span>
-                <span className="px-3 py-1 bg-primary text-on-primary text-xs font-bold rounded-full">{h.badge}</span>
+              {/* Level number */}
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-4xl font-black text-primary/20 group-hover:text-primary/40 transition-colors">
+                  {h.num}
+                </span>
               </div>
+
+              {/* Title */}
               <h4 className="text-lg font-bold mb-2">{h.title}</h4>
-              <p className="text-on-surface-variant text-sm mb-5">{h.desc}</p>
-              <div className="flex items-center gap-2 text-primary font-bold text-sm">
-                <span>{h.lessons} bài học</span>
-                <span className="w-1 h-1 rounded-full bg-outline-variant" />
-                <span>{h.hours} giờ học</span>
-              </div>
+
+              {/* Description only */}
+              <p className="text-on-surface-variant text-sm leading-relaxed">
+                {h.desc}
+              </p>
             </Link>
           ))}
         </div>
@@ -396,13 +442,13 @@ function LoginCTA() {
             </div>
             <div className="relative z-10">
               <h2 className="text-2xl font-extrabold mb-5 leading-snug">
-                Sẵn sàng để bắt đầu hành trình?
+                Sẵn sàng bắt đầu?
               </h2>
               <ul className="space-y-3">
                 {[
-                  "Lưu lại tiến độ học tập của bạn",
-                  "Tham gia cộng đồng học viên",
-                  "Nhận tài liệu HSK miễn phí",
+                  "Lưu lại tiến độ học tập",
+                  "Quiz cá nhân hóa theo cấp độ",
+                  "Gợi ý từ vựng cần ôn luyện",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-2.5 text-sm">
                     <span className="material-symbols-outlined text-secondary-fixed text-lg">check_circle</span>
@@ -486,11 +532,14 @@ function Footer() {
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           <div className="md:col-span-1">
-            <span className="text-xl font-extrabold text-primary mb-4 block">
-              fun<span className="text-secondary">chinese</span>
-            </span>
+            <div className="flex items-center gap-2 mb-4">
+              <Image src="/logo.png" alt="funchinese" width={32} height={32} className="object-contain" />
+              <span className="text-xl font-extrabold text-primary">
+                fun<span className="text-secondary">chinese</span>
+              </span>
+            </div>
             <p className="text-on-surface-variant text-sm leading-relaxed">
-              Nền tảng học tiếng Trung hiện đại nhất dành riêng cho người Việt. Kết nối tri thức, bắc nhịp thành công.
+              Nền tảng học tiếng Trung dành cho người Việt. Đơn giản, hiệu quả, phù hợp cho người bận rộn.
             </p>
           </div>
 
@@ -560,7 +609,7 @@ export default function HomePage() {
         <Hero />
         <Features />
         <HskLevels />
-        <Testimonials />
+        {/* <Testimonials /> */}
         <LoginCTA />
       </main>
       <Footer />
