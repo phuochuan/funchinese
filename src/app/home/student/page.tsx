@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useDashboard, type DashboardData } from "@/hooks/useDashboard";
-import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatDeadline(iso: string) {
@@ -34,7 +34,7 @@ function Skeleton({ className = "" }: { className?: string }) {
 const NAV = [
   { href: "/home/student",             icon: "dashboard",         label: "Bảng điều khiển" },
   { href: "/home/student/courses",     icon: "menu_book",         label: "Chương trình học"    },
-  { href: "/home/student/practice",    icon: "record_voice_over", label: "Luyện tập"       },
+  // { href: "/home/student/practice",    icon: "record_voice_over", label: "Luyện tập"       },
   { href: "/home/student/assignments", icon: "assignment",        label: "Bài tập"         },
   { href: "/home/student/community",   icon: "group",             label: "Cộng đồng"       },
 ];
@@ -220,6 +220,128 @@ function CalendarSection({ data }: { data: DashboardData | null }) {
   );
 }
 
+// ─── Flashcard Review Section ─────────────────────────────────────────────────
+type LevelData = {
+  level: number;
+  label: string;
+  sub: string;
+  color: string;
+  colorText: string;
+  count: number;
+};
+
+type FlashcardStats = {
+  levels: LevelData[];
+  totalLearned: number;
+  totalVocab: number;
+  newWords: number;
+};
+
+// 6 levels matching API response
+const LEVEL_COLORS: Record<number, { bar: string; text: string; dot: string }> = {
+  0: { bar: 'bg-gray-300',  text: 'text-gray-400',   dot: 'bg-gray-300'   },
+  1: { bar: 'bg-red-500',   text: 'text-red-500',    dot: 'bg-red-500'    },
+  2: { bar: 'bg-orange-500',text: 'text-orange-500',  dot: 'bg-orange-500' },
+  3: { bar: 'bg-amber-500', text: 'text-amber-600',  dot: 'bg-amber-500'  },
+  4: { bar: 'bg-green-500', text: 'text-green-600',  dot: 'bg-green-500'  },
+  5: { bar: 'bg-blue-500',  text: 'text-blue-500',   dot: 'bg-blue-500'   },
+};
+
+function FlashcardSection() {
+  const router = useRouter();
+  const [stats, setStats] = useState<FlashcardStats | null>(null);
+
+  useEffect(() => {
+    fetch('/api/student/flashcard/stats')
+      .then(r => r.json())
+      .then(d => setStats(d))
+      .catch(() => {});
+  }, []);
+
+  const levels = stats?.levels ?? [];
+  const totalLearned = stats?.totalLearned ?? 0;
+  const totalVocab   = stats?.totalVocab  ?? 0;
+  const overdue      = stats?.levels.find(l => l.level === 1)?.count ?? 0;
+  const maxCount     = Math.max(...levels.map(l => l.count), 1);
+
+  return (
+    <div className="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/10">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary" style={{ fontSize: 20 }}>school</span>
+          <h3 className="font-bold text-on-surface">Mức độ ghi nhớ</h3>
+          {overdue > 0 && (
+            <span className="text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded-full">
+              {overdue} cần ôn
+            </span>
+          )}
+        </div>
+        <button
+          onClick={() => router.push('/home/student/flashcard')}
+          className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
+        >
+          Chi tiết
+          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>chevron_right</span>
+        </button>
+      </div>
+
+      {/* Horizontal bar chart */}
+      <div className="space-y-2 mb-4">
+        {levels.map((lvl) => {
+          const c = LEVEL_COLORS[lvl.level] ?? LEVEL_COLORS[0];
+          const pct = Math.max(Math.round((lvl.count / maxCount) * 100), lvl.count > 0 ? 4 : 0);
+          const isNew = lvl.level === 0;
+
+          return (
+            <button
+              key={lvl.level}
+              onClick={() => router.push(`/home/student/flashcard/all`)}
+              className="w-full flex items-center gap-2 group"
+              title={`${lvl.label}: ${lvl.count} từ`}
+            >
+              {/* Label */}
+              <div className={`w-14 text-right flex-shrink-0 ${c.text}`}>
+                <div className="text-xs font-bold">{lvl.label}</div>
+                <div className="text-[10px] opacity-60">{lvl.sub}</div>
+              </div>
+
+              {/* Bar */}
+              <div className="flex-1 h-6 bg-surface-container rounded-lg overflow-hidden">
+                <div
+                  className={`h-full rounded-lg transition-all duration-500 group-hover:brightness-110 ${c.bar} ${
+                    lvl.count === 0 ? 'opacity-20' : ''
+                  }`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+
+              {/* Count */}
+              <div className={`w-7 text-right text-xs font-extrabold flex-shrink-0 ${c.text}`}>
+                {lvl.count}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Progress + link */}
+      <div className="flex items-center justify-between pt-3 border-t border-outline-variant/10">
+        <span className="text-xs text-on-surface-variant">
+          {totalLearned}/{totalVocab} từ đã học
+        </span>
+        <button
+          onClick={() => router.push('/home/student/flashcard')}
+          className="text-xs font-bold text-primary hover:underline flex items-center gap-0.5"
+        >
+          Xem thư viện
+          <span className="material-symbols-outlined" style={{ fontSize: 12 }}>chevron_right</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Upcoming Assignments ─────────────────────────────────────────────────────
 function UpcomingAssignments({ data }: { data: DashboardData | null }) {
   if (!data) {
@@ -310,6 +432,7 @@ export default function StudentDashboard() {
     <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       <WelcomeBanner data={data} />
       <StatsRow data={data} />
+      <FlashcardSection />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <CalendarSection data={data} />
         <UpcomingAssignments data={data} />

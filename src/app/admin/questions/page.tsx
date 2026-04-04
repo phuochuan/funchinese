@@ -387,7 +387,7 @@ export default function AdminQuestionsPage() {
         <table className="w-full min-w-[600px]">
           <thead>
             <tr className="border-b border-outline-variant/10 bg-surface-container">
-              {["ID","Question Content","Type","Level","Actions"].map(h => (
+              {["ID","Question Content","Correct Answer","Type","Level","Actions"].map(h => (
                 <th key={h} className="px-5 py-3 text-left text-xs font-bold text-on-surface-variant uppercase tracking-wider">{h}</th>
               ))}
             </tr>
@@ -428,6 +428,25 @@ export default function AdminQuestionsPage() {
                   )}
                 </td>
                 <td className="px-5 py-4">
+                  {q.type === 'MULTIPLE_CHOICE' && q.options && Array.isArray(q.options) && q.answer && /^[A-D]$/.test(q.answer) ? (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold bg-green-100 text-green-700 w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0">
+                        {q.answer}
+                      </span>
+                      <span className="text-sm text-on-surface line-clamp-2">
+                        {(() => {
+                          const idx = q.answer.charCodeAt(0) - 65;
+                          return q.options[idx] ?? '—';
+                        })()}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-on-surface-variant italic">
+                      {q.answer || q.meaningVi || '—'}
+                    </span>
+                  )}
+                </td>
+                <td className="px-5 py-4">
                   <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${TYPE_CONFIG[q.type]?.cls ?? "bg-surface-container text-on-surface-variant"}`}>
                     {TYPE_CONFIG[q.type]?.label ?? q.type}
                   </span>
@@ -454,7 +473,7 @@ export default function AdminQuestionsPage() {
             ))}
 
             {!loading && questions.length === 0 && (
-              <tr><td colSpan={5} className="text-center py-14 text-sm text-on-surface-variant">
+              <tr><td colSpan={6} className="text-center py-14 text-sm text-on-surface-variant">
                 Không tìm thấy câu hỏi nào
               </td></tr>
             )}

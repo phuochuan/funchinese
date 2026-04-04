@@ -69,12 +69,12 @@ function Navbar() {
           >
             Đăng nhập
           </Link>
-          <Link
+          {/* <Link
             href="/register"
             className="text-sm font-bold bg-primary text-on-primary px-5 py-2 rounded-lg shadow-sm hover:brightness-110 transition-all"
           >
             Bắt đầu học miễn phí
-          </Link>
+          </Link> */}
         </div>
 
         {/* Mobile hamburger */}
@@ -104,9 +104,9 @@ function Navbar() {
           <Link href="/login" onClick={() => setOpen(false)} className="text-sm font-bold text-primary py-2">
             Đăng nhập
           </Link>
-          <Link href="/register" onClick={() => setOpen(false)} className="text-sm font-bold bg-primary text-on-primary px-4 py-2.5 rounded-lg text-center">
+          {/* <Link href="/register" onClick={() => setOpen(false)} className="text-sm font-bold bg-primary text-on-primary px-4 py-2.5 rounded-lg text-center">
             Bắt đầu học miễn phí
-          </Link>
+          </Link> */}
         </div>
       )}
     </nav>
@@ -141,12 +141,12 @@ function Hero() {
           </p>
 
           <div className="flex flex-wrap gap-3">
-            <Link
+            {/* <Link
               href="/register"
               className="bg-primary text-on-primary px-8 py-3.5 rounded-lg text-base font-bold shadow-lg hover:-translate-y-0.5 transition-all"
             >
               Bắt đầu học miễn phí
-            </Link>
+            </Link> */}
             <Link
               href="#hsk"
               className="text-primary px-8 py-3.5 rounded-lg text-base font-bold border border-outline-variant/30 hover:bg-surface-container-low transition-all"

@@ -6,13 +6,14 @@ import { keycloakSignOut } from "@/actions/auth";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useDarkMode, ColorMode } from "@/hooks/useDarkMode";
 
 // ─── Nav config ───────────────────────────────────────────────────────────────
 const NAV = [
   { href: "/home/student",             icon: "dashboard",         label: "Bảng điều khiển" },
     { href: "/home/student/schedule", icon: "calendar_month", label: "Lịch học" },
   { href: "/home/student/courses",     icon: "menu_book",         label: "Chương trình"    },
-  // { href: "/home/student/practice",    icon: "record_voice_over", label: "Luyện tập"       },
+  { href: "/home/student/flashcard",    icon: "record_voice_over", label: "flashcard"       },
   { href: "/home/student/assignments", icon: "favorite",           label: "Bài tập"         },
   { href: "/home/student/quiz",   icon: "circle",             label: "Quiz"       },
 ];
@@ -162,6 +163,13 @@ function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const { data } = useDashboard();
   const [showNotif, setShowNotif] = useState(false);
   const unread = data?.notifications?.length ?? 0;
+  const { isDark, mode, setMode } = useDarkMode();
+
+  function cycleMode() {
+    const order: ColorMode[] = ['light', 'dark', 'system'];
+    const idx = order.indexOf(mode);
+    setMode(order[(idx + 1) % order.length]);
+  }
 
   function timeAgo(iso: string) {
     const diff = Date.now() - new Date(iso).getTime();
@@ -189,6 +197,17 @@ function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
       </div>
 
       <div className="flex items-center gap-2 ml-auto">
+        {/* Dark mode toggle */}
+        <button
+          onClick={cycleMode}
+          title={mode === 'light' ? 'Chế độ tối' : mode === 'dark' ? 'Chế độ sáng' : 'Theo hệ thống'}
+          className="w-9 h-9 rounded-xl hover:bg-surface-container flex items-center justify-center transition-colors"
+        >
+          <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 20 }}>
+            {isDark ? 'light_mode' : 'dark_mode'}
+          </span>
+        </button>
+
         {/* Streak */}
         <div className="flex items-center gap-1 bg-surface-container px-2.5 py-1.5 rounded-xl">
           <span className="material-symbols-outlined text-tertiary"
@@ -276,7 +295,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         </main>
       </div>
 
-      <BottomNav />
+      {/* <BottomNav /> */}
     </div>
   );
 }

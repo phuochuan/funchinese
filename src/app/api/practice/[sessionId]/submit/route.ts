@@ -53,7 +53,18 @@ export async function POST(
   questions.forEach((q: any) => {
     const userAnswer = answers[q.id];
     // Support both 'answer' and 'correctAnswer' field names
-    const correctAnswer = q.answer || q.correctAnswer;
+    let correctAnswer = q.answer || q.correctAnswer;
+
+    // Backward-compat: resolve legacy letter answers (A/B/C/D) → meaning text
+    if (
+      typeof correctAnswer === 'string' &&
+      /^[A-D]$/.test(correctAnswer) &&
+      Array.isArray(q.options)
+    ) {
+      const idx = correctAnswer.charCodeAt(0) - 65;
+      correctAnswer = q.options[idx] ?? correctAnswer;
+    }
+
     // 🔥 FILL_BLANK: luôn đúng vì user tự nhập đáp án để ôn
     const isCorrect = q.type === 'FILL_BLANK' || userAnswer === correctAnswer;
     if (isCorrect) correctCount++;
@@ -61,6 +72,12 @@ export async function POST(
     results.push({
       questionId: q.id,
       hanzi: q.hanzi,
+      pinyin: q.pinyin ?? null,
+      meaningVi: q.meaningVi ?? null,
+      questionText: q.questionText ?? null,
+      options: q.options ?? null,
+      audioUrl: q.audioUrl ?? null,
+      type: q.type ?? 'MULTIPLE_CHOICE',
       userAnswer,
       correctAnswer,
       isCorrect,

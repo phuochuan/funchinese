@@ -1,21 +1,50 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { keycloakSignOut } from "@/actions/auth";
-import { useState } from "react";
 import { usePathname } from "next/navigation";
+import Script from "next/script";
+import { keycloakSignOut } from "@/actions/auth";
+import { AdminThemeProvider, THEME_PALETTES } from "@/hooks/useAdminTheme";
 
 const NAV = [
-  { href: "/admin",                       icon: "dashboard",    label: "Tổng quan"  },
-  // { href: "/admin/classes",               icon: "school",       label: "Lớp học"    },
-  { href: "/admin/classes", icon: "school", label: "Lớp học" },
-  { href: "/admin/content/courses",       icon: "menu_book",    label: "Khoá học"   },
-  { href: "/admin/content/vocabulary",    icon: "library_books",label: "Từ vựng"    }, // ← thêm
-  { href: "/admin/assignments",           icon: "assignment",   label: "Bài tập"    },
-  // { href: "/admin/reports",               icon: "bar_chart",    label: "Báo cáo"    },
-  { href: "/admin/questions", icon: "quiz", label: "Thư viện câu hỏi" },
+  { href: "/admin",                       icon: "dashboard",    label: "Tổng quan" },
+  { href: "/admin/classes",               icon: "school",       label: "Lớp học" },
+  { href: "/admin/content/courses",       icon: "menu_book",   label: "Khoá học" },
+  { href: "/admin/content/vocabulary",   icon: "library_books", label: "Từ vựng" },
+  { href: "/admin/assignments",          icon: "assignment",  label: "Bài tập" },
+  { href: "/admin/questions",             icon: "quiz",         label: "Thư viện câu hỏi" },
 ];
+
+// Reads cached theme from sessionStorage → applies CSS vars before React hydrates
+function ThemeInitScript() {
+  const palettes = JSON.stringify(THEME_PALETTES);
+  const keys = JSON.stringify(Object.keys(THEME_PALETTES));
+  const code = `
+(function() {
+  try {
+    var cached = sessionStorage.getItem('admin_theme');
+    var valid = ${keys};
+    if (cached && valid.indexOf(cached) !== -1) {
+      var p = ${palettes}[cached];
+      var r = document.documentElement;
+      r.style.setProperty('--primary', p.primary);
+      r.style.setProperty('--on-primary', p.onPrimary);
+      r.style.setProperty('--primary-container', p.primaryContainer);
+      r.style.setProperty('--on-primary-container', p.onPrimaryContainer);
+      r.style.setProperty('--primary-fixed', p.primaryFixed);
+      r.style.setProperty('--primary-fixed-dim', p.primaryFixedDim);
+      r.style.setProperty('--on-primary-fixed', p.onPrimaryFixed);
+      r.style.setProperty('--on-primary-fixed-variant', p.onPrimaryFixedVariant);
+      r.style.setProperty('--inverse-primary', p.inversePrimary);
+      r.style.setProperty('--surface-tint', p.surfaceTint);
+    }
+  } catch(e) {}
+})();
+  `.trim();
+  return <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: code }} />;
+}
 
 function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
@@ -75,7 +104,7 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
           ))}
         </nav>
 
-        {/* Create course CTA */}
+        {/* CTA */}
         <div className="mx-3 mb-3">
           <Link href="/admin/content/courses"
             className="flex items-center gap-2 w-full bg-primary text-on-primary px-4 py-3 rounded-xl text-sm font-bold hover:brightness-110 transition-all">
@@ -110,7 +139,6 @@ function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 22 }}>menu</span>
       </button>
 
-      {/* Search */}
       <div className="flex-1 max-w-sm">
         <div className="flex items-center gap-2 bg-surface-container px-3 py-2 rounded-xl">
           <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 18 }}>search</span>
@@ -120,25 +148,21 @@ function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
       </div>
 
       <div className="ml-auto flex items-center gap-3">
-        {/* Grade button */}
         <Link href="/admin/assignments/grade"
           className="hidden sm:flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-bold hover:brightness-110 transition-all">
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>grading</span>
           Chấm bài
         </Link>
 
-        {/* Notifications */}
         <button className="relative w-9 h-9 rounded-xl hover:bg-surface-container flex items-center justify-center transition-colors">
           <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 20 }}>notifications</span>
         </button>
 
-        {/* Settings */}
         <Link href="/admin/settings"
           className="w-9 h-9 rounded-xl hover:bg-surface-container flex items-center justify-center transition-colors">
           <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 20 }}>settings</span>
         </Link>
 
-        {/* Avatar */}
         <div className="flex items-center gap-2">
           <div className="text-right hidden sm:block">
             <p className="text-xs font-bold text-on-surface leading-none">Giáo viên</p>
@@ -157,15 +181,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-surface-container-low overflow-hidden">
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <Topbar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+    <AdminThemeProvider>
+      <ThemeInitScript />
+      <div className="flex h-screen bg-surface-container-low overflow-hidden">
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          <Topbar onMenuClick={() => setSidebarOpen(true)} />
+          <main className="flex-1 overflow-y-auto">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </AdminThemeProvider>
   );
 }

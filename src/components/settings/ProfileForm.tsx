@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useDarkMode, ColorMode } from "@/hooks/useDarkMode";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Gender = "male" | "female" | "other" | "prefer_not_to_say";
@@ -22,6 +23,59 @@ interface UserProfile {
 }
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
+
+// ─── Dark Mode / Theme Settings ─────────────────────────────────────────────
+const MODE_OPTIONS: { value: ColorMode; icon: string; label: string; hint: string }[] = [
+  { value: 'light',  icon: 'light_mode',    label: 'Sáng',    hint: 'Luôn dùng giao diện sáng' },
+  { value: 'dark',   icon: 'dark_mode',     label: 'Tối',     hint: 'Luôn dùng giao diện tối' },
+  { value: 'system', icon: 'contrast',      label: 'Hệ thống', hint: 'Theo cài đặt thiết bị của bạn' },
+];
+
+function ThemeSettings() {
+  const { mode, setMode } = useDarkMode();
+
+  return (
+    <div className="bg-surface-container-low rounded-2xl p-5">
+      <h2 className="text-sm font-bold text-on-surface mb-4">Giao diện & Hiển thị</h2>
+
+      <div className="flex gap-3">
+        {MODE_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setMode(opt.value)}
+            className={[
+              "flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border transition-all",
+              mode === opt.value
+                ? "border-primary bg-primary-container/50"
+                : "border-outline-variant bg-surface-container hover:bg-surface-container-high",
+            ].join(" ")}
+          >
+            <span
+              className={[
+                "material-symbols-outlined text-2xl",
+                mode === opt.value ? "text-primary" : "text-on-surface-variant",
+              ].join(" ")}
+            >
+              {opt.icon}
+            </span>
+            <div className="text-center">
+              <p className={[
+                "text-sm font-semibold",
+                mode === opt.value ? "text-primary" : "text-on-surface",
+              ].join(" ")}>
+                {opt.label}
+              </p>
+              <p className="text-[10px] text-on-surface-variant mt-0.5 leading-snug">
+                {opt.hint}
+              </p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -291,6 +345,9 @@ export function ProfileForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+
+      {/* ── Giao diện & Hiển thị ──────────────────────────────────────── */}
+      <ThemeSettings />
 
       {/* ── Ảnh đại diện ──────────────────────────────────────────────── */}
       <div className="bg-surface-container-low rounded-2xl p-6 flex items-center justify-center">

@@ -129,9 +129,9 @@ export default function StudentSubmitPage({ params }: { params: Promise<{ assign
   );
 
   return (
-    <div className="min-h-screen pb-16" style={{ background: "#f9fafb" }}>
+    <div className="min-h-screen pb-16 bg-surface-container">
       {/* Topbar */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-surface-container-lowest border-b border-outline-variant/20 px-6 py-3 flex items-center gap-3">
         <Link href="/home/student/assignments"
           className="text-sm text-on-surface-variant hover:text-primary transition-colors">
           Assignments
@@ -142,7 +142,7 @@ export default function StudentSubmitPage({ params }: { params: Promise<{ assign
 
       <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
         {/* Assignment details */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
           <div className="flex items-start gap-4 p-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
@@ -176,7 +176,7 @@ export default function StudentSubmitPage({ params }: { params: Promise<{ assign
             {assignment?.imageUrls && assignment.imageUrls.length > 0 && (
               <div className="flex-shrink-0 space-y-3">
                 {assignment.imageUrls.map((url, i) => (
-                  <img key={i} src={url} alt="" className="w-48 h-36 object-cover rounded-xl border border-gray-200" />
+                  <img key={i} src={url} alt="" className="w-48 h-36 object-cover rounded-xl border border-outline-variant/30" />
                 ))}
               </div>
             )}
@@ -187,8 +187,8 @@ export default function StudentSubmitPage({ params }: { params: Promise<{ assign
 
         {/* Submission area */}
         {(canSubmit || !submission) && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/20">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-secondary/10 rounded-xl flex items-center justify-center">
                   <span className="material-symbols-outlined text-secondary" style={{ fontSize: 18 }}>edit_note</span>
@@ -204,7 +204,7 @@ export default function StudentSubmitPage({ params }: { params: Promise<{ assign
             </div>
 
             {/* Text editor */}
-            <div className="px-6 py-4 border-b border-gray-100">
+            <div className="px-6 py-4 border-b border-outline-variant/20">
               <div className="flex gap-2 mb-3">
                 {["format_bold","format_italic","format_underlined","format_list_bulleted","link"].map(icon => (
                   <button key={icon} className="w-7 h-7 flex items-center justify-center rounded hover:bg-surface-container transition-colors">
@@ -221,12 +221,12 @@ export default function StudentSubmitPage({ params }: { params: Promise<{ assign
 
             {/* Media previews */}
             {mediaUrls.length > 0 && (
-              <div className="px-6 py-4 border-b border-gray-100 grid grid-cols-2 gap-4">
+              <div className="px-6 py-4 border-b border-outline-variant/20 grid grid-cols-2 gap-4">
                 {mediaUrls.map((url, i) => (
                   <div key={i} className="relative group">
                     {isVideo(url)
                       ? <VideoPlayer url={url} />
-                      : <img src={url} alt="" className="w-full h-40 object-cover rounded-xl border border-gray-200" />
+                      : <img src={url} alt="" className="w-full h-40 object-cover rounded-xl border border-outline-variant/30" />
                     }
                     <button onClick={() => setMediaUrls(prev => prev.filter((_, j) => j !== i))}
                       className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -238,9 +238,9 @@ export default function StudentSubmitPage({ params }: { params: Promise<{ assign
             )}
 
             {/* Upload buttons */}
-            <div className="grid grid-cols-2 gap-4 p-6 border-b border-gray-100">
+            <div className="grid grid-cols-2 gap-4 p-6 border-b border-outline-variant/20">
               <button onClick={() => imgInputRef.current?.click()} disabled={uploading}
-                className="flex flex-col items-center gap-2 p-5 border-2 border-dashed border-gray-200 rounded-xl hover:border-primary/40 hover:bg-primary/5 transition-all">
+                className="flex flex-col items-center gap-2 p-5 border-2 border-dashed border-outline-variant/30 rounded-xl hover:border-primary/40 hover:bg-primary/5 transition-all">
                 <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 28 }}>image</span>
                 <div className="text-center">
                   <p className="text-sm font-semibold text-on-surface">Tải lên hình ảnh bài viết tay</p>
@@ -249,7 +249,7 @@ export default function StudentSubmitPage({ params }: { params: Promise<{ assign
               </button>
 
               <button onClick={() => vidInputRef.current?.click()} disabled={uploading}
-                className="flex flex-col items-center gap-2 p-5 border-2 border-dashed border-gray-200 rounded-xl hover:border-secondary/40 hover:bg-secondary/5 transition-all">
+                className="flex flex-col items-center gap-2 p-5 border-2 border-dashed border-outline-variant/30 rounded-xl hover:border-secondary/40 hover:bg-secondary/5 transition-all">
                 {uploading
                   ? <div className="w-7 h-7 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                   : <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 28 }}>videocam</span>

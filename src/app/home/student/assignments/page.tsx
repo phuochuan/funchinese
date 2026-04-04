@@ -15,127 +15,730 @@ const ICON_MAP: Record<string, string> = {
   GRADED: "task_alt", REASSIGNED: "refresh",
 };
 
-const PHILOSOPHER_QUOTES = [
-  // ── Lão Tử (Tao Te Ching / Đạo Đức Kinh) ──────────────────────────────────
-  { text: "Hành trình vạn dặm bắt đầu từ một bước chân.", author: "Lão Tử", flag: "🟡" },
-  { text: "Người biết đủ thì không bao giờ nghèo.", author: "Lão Tử", flag: "🟡" },
-  { text: "Khi không ai hiểu bạn, bạn đã trở thành người lớn.", author: "Lão Tử", flag: "🟡" },
-  { text: "Ngã bất dữ thiên tỉnh kỳ dữ, ngã thường vô vi dĩ đắc thiên hạ.", author: "Lão Tử", flag: "🟡" },
-  { text: "Đạo sinh một, một sinh hai, hai sinh ba, ba sinh vạn vật.", author: "Lão Tử", flag: "🟡" },
-  { text: "Người hiền cương như đứa trẻ mới sinh, chưa biết giao hợp mà có thể động dục.", author: "Lão Tử", flag: "🟡" },
-  { text: "Kẻ thắng người mạnh là kẻ mạnh, kẻ thắng chính mình mới là người quang minh.", author: "Lão Tử", flag: "🟡" },
-  { text: "Tri tuệ giả, kỳ dụng diệc đại dã. Trì dã dĩ việc, kỳ dụng dĩ cử. Tư dã dĩ lợi, kỳ dụng dĩ phát.", author: "Lão Tử", flag: "🟡" },
-  { text: "Bạo dữ chi sư, bất đắc bất chí; đắc dĩ tồn chi, nhi dĩ xả chi, thị vị bỉ đạo.", author: "Lão Tử", flag: "🟡" },
-  { text: "Thiên hạ câu tri bỉ sự giai đắc, bất tri dĩ vi vi dã.", author: "Lão Tử", flag: "🟡" },
-  { text: "Sách mở ra ngàn cánh cửa, nhưng không cánh cửa nào dẫn đến hạnh phúc nếu thiếu ý chí.", author: "Lão Tử", flag: "🟡" },
-  { text: "Kẻ nào biết đủ thì giàu có, kẻ nào biết dừng lại thì an toàn.", author: "Lão Tử", flag: "🟡" },
-  { text: "Đạo Đức bất đức, tắc hữu đức — Nhân nghĩ bất nhân, tắc hữu nhân.", author: "Lão Tử", flag: "🟡" },
-  // ── Khổng Tử ───────────────────────────────────────────────────────────────
-  { text: "Học nhi bất hành vô dĩ dụng, học tại cổ duyệt diệc duyên thời.", author: "Khổng Tử", flag: "🔴" },
-  { text: "Người không biết điều thì không thể đứng được.", author: "Khổng Tử", flag: "🔴" },
-  { text: "Ta học để hành, học mà không hành thì học làm gì?", author: "Khổng Tử", flag: "🔴" },
-  { text: "Người với người giao tiếp, lấy tín nhiễu vi bản.", author: "Khổng Tử", flag: "🔴" },
-  { text: "Đọc sách nhiều mà không suy nghĩ thì uổng công, suy nghĩ nhiều mà không đọc sách thì nguy hiểm.", author: "Khổng Tử", flag: "🔴" },
-  { text: "Người quân tử hòa nhu mà không đồng nhục, tiểu nhân đồng nhục mà bất khả hòa nhu.", author: "Khổng Tử", flag: "🔴" },
-  { text: "Tam giá tại thân: Vong dục, vong xí, vong đầu.", author: "Khổng Tử", flag: "🔴" },
-  { text: "Có công mài sắt, có ngày nên kim.", author: "Khổng Tử", flag: "🔴" },
-  { text: "Học, học nữa, học mãi — tri tuệ là sáng suốt, ngu si là ngu si, đó là tự mình chọn lấy.", author: "Khổng Tử", flag: "🔴" },
-  { text: "Bất vi dụng nhi học chi viên, bất vi dụng dĩ vi tắc tích dã.", author: "Khổng Tử", flag: "🔴" },
-  { text: "Quân tử dĩ A, B, C tự Cường; tiểu nhân A, B, C tự Cường bất Cường.", author: "Khổng Tử", flag: "🔴" },
-  { text: "Kỷ bất dụng, vô dĩ dụng chính nhân. Đãi sự bất minh, bất minh chi sự, bất hành dã.", author: "Khổng Tử", flag: "🔴" },
-  { text: "Thiên hạ chi sự giai thập dục, dĩ kỳ năng vi chư bất năng vi chi." , author: "Khổng Tử", flag: "🔴" },
-  // ── Socrates ───────────────────────────────────────────────────────────────
-  { text: "Tôi biết rằng tôi không biết gì.", author: "Socrates", flag: "🟢" },
-  { text: "Đời người không sống thì như cây không ra quả.", author: "Socrates", flag: "🟢" },
-  { text: "Kẻ thù lớn nhất của tri thức không phải là sự dốt nát, mà là ảo tưởng về tri thức.", author: "Socrates", flag: "🟢" },
-  { text: "Hãy làm điều bạn sợ, và bạn sẽ không bao giờ còn sợ nữa.", author: "Socrates", flag: "🟢" },
-  { text: "Khi thất bại, đừng tìm kiếm lỗi ở người khác — hãy tìm hiểu xem mình đã làm gì sai.", author: "Socrates", flag: "🟢" },
-  { text: "Một đời không thăm dò là một đời sống không đáng sống.", author: "Socrates", flag: "🟢" },
-  { text: "Người ta không dạy cái gì; người ta chỉ giúp người ta nhớ rằng họ đã biết.", author: "Socrates", flag: "🟢" },
-  { text: "Hạnh phúc không đến từ sự giàu có, mà đến từ tâm hồn thanh thản.", author: "Socrates", flag: "🟢" },
-  // ── Plato ─────────────────────────────────────────────────────────────────
-  { text: "Giáo dục là việc chạm vào ngọn lửa chứ không phải rót nước vào bình.", author: "Plato", flag: "🔵" },
-  { text: "Con người sinh ra không phải để tan vỡ, mà để bay cao.", author: "Plato", flag: "🔵" },
-  { text: "Cái đẹp là sự huy hoàng của cái thiện.", author: "Plato", flag: "🔵" },
-  { text: "Bắt đầu là nửa công việc.", author: "Plato", flag: "🔵" },
-  { text: "Tri thức vô thượng là tri thức giúp ta nhận ra rằng mình không biết gì.", author: "Plato", flag: "🔵" },
-  { text: "Cái nhà giàu không phải ngôi nhà đẹp nhất, mà là ngôi nhà có tình yêu thương.", author: "Plato", flag: "🔵" },
-  { text: "Tình yêu chân chính không phải là sở hữu, mà là nâng đỡ tâm hồn.", author: "Plato", flag: "🔵" },
-  // ── Seneca ────────────────────────────────────────────────────────────────
-  { text: "Không có ai ngẫu nhiên trở thành người khôn ngoan — đó là kết quả của lao động.", author: "Seneca", flag: "⚪" },
-  { text: "May mắn không xảy ra, đó là kết quả của sự chuẩn bị.", author: "Seneca", flag: "⚪" },
-  { text: "Chúng ta không sợ mất thời gian, chúng ta sợ thời gian trôi qua mà không làm gì.", author: "Seneca", flag: "⚪" },
-  { text: "Người khôn ngoan không đợi hứa hẹn tương lai mà tận hưởng hiện tại.", author: "Seneca", flag: "⚪" },
-  { text: "Nghèo không phải là thiếu thốn, mà là không có gì thừa.", author: "Seneca", flag: "⚪" },
-  { text: "Thời gian chữa lành mọi vết thương, nhưng chính ta phải cho nó cơ hội.", author: "Seneca", flag: "⚪" },
-  { text: "Người sống trong quá khứ là người chết; người sống trong tương lai là người chưa sinh.", author: "Seneca", flag: "⚪" },
-  { text: "Chúng ta học không phải cho trường học, mà cho cuộc sống.", author: "Seneca", flag: "⚪" },
-  // ── Nietzsche ──────────────────────────────────────────────────────────────
-  { text: "Điều không giết chết được ta sẽ khiến ta mạnh mẽ hơn.", author: "Nietzsche", flag: "⚫" },
-  { text: "Người có lý do để sống có thể chịu đựng bất kỳ điều gì.", author: "Nietzsche", flag: "⚫" },
-  { text: "Trong thế giới của cái ác, người tốt phải trở nên điên.", author: "Nietzsche", flag: "⚫" },
-  { text: "Kẻ chiến thắng không bao giờ từ bỏ, kẻ từ bỏ không bao giờ chiến thắng.", author: "Nietzsche", flag: "⚫" },
-  { text: "Sống như thể không có ngày mai — đó là cách sống của người can đảm.", author: "Nietzsche", flag: "⚫" },
-  { text: "Amor fati — Hãy yêu số phận của con, trong mọi hoàn cảnh.", author: "Nietzsche", flag: "⚫" },
-  { text: "Điều thiện và cái ác chỉ do con người tự tạo ra, không có ai là kẻ ác từ bản chất.", author: "Nietzsche", flag: "⚫" },
-  // ── Marcus Aurelius ─────────────────────────────────────────────────────────
-  { text: "Bạn có quyền về suy nghĩ của mình, nhưng không ai ép bạn phải tin vào điều gì.", author: "Marcus Aurelius", flag: "🟤" },
-  { text: "Tâm trí là thứ tự định hình vật chất, không phải ngược lại.", author: "Marcus Aurelius", flag: "🟤" },
-  { text: "Tương lai không thuộc về chúng ta, quá khứ đã qua — chỉ có hiện tại là của ta.", author: "Marcus Aurelius", flag: "🟤" },
-  { text: "Đừng để những gì người khác nghĩ làm phiền bạn — họ có suy nghĩ của riêng họ.", author: "Marcus Aurelius", flag: "🟤" },
-  { text: "Nghịch cảnh không kiểm tra tính cách, mà chỉ phơi bày nó.", author: "Marcus Aurelius", flag: "🟤" },
-  { text: "Người ta tìm nơi ẩn náu trong những thứ sai lầm, vì họ sợ nhìn vào bên trong.", author: "Marcus Aurelius", flag: "🟤" },
-  // ── Epictetus ──────────────────────────────────────────────────────────────
-  { text: "Chúng ta không thể chọn hoàn cảnh bên ngoài, nhưng có thể chọn cách phản ứng.", author: "Epictetus", flag: "🟠" },
-  { text: "Điều quan trọng không phải là chuyện gì xảy ra với bạn, mà là cách bạn phản ứng với nó.", author: "Epictetus", flag: "🟠" },
-  { text: "Người không bận tâm về những điều không nằm trong tầm kiểm soát sẽ luôn bình an.", author: "Epictetus", flag: "🟠" },
-  { text: "Muốn thay đổi thế giới, trước hết hãy thay đổi chính mình.", author: "Epictetus", flag: "🟠" },
-  // ── Aristotle ───────────────────────────────────────────────────────────────
-  { text: "Con người là động vật có lý trí; mục đích của cuộc sống là sống theo lý trí.", author: "Aristotle", flag: "🟣" },
-  { text: "Hạnh phúc là ý nghĩa và mục đích của mọi sự tồn tại.", author: "Aristotle", flag: "🟣" },
-  { text: "Biết được điều gì là đúng không khó, khó là thực hành nó mỗi ngày.", author: "Aristotle", flag: "🟣" },
-  { text: "Excellence is not an act, but a habit — Vượt trội không phải hành động mà là thói quen.", author: "Aristotle", flag: "🟣" },
-  { text: "Người không có bạn tốt là người cô đơn nhất trên đời.", author: "Aristotle", flag: "🟣" },
-  // ── Victor Hugo ─────────────────────────────────────────────────────────────
-  { text: "Mỗi năm qua đi là một bước tiến gần hơn tới sự hoàn thiện.", author: "Victor Hugo", flag: "🔵" },
-  { text: "Kẻ mù không nhận ra ánh sáng, kẻ ngu không nhận ra tri thức.", author: "Victor Hugo", flag: "🔵" },
-  { text: "Hạnh phúc lớn nhất là biết rằng ta được yêu thương vì chính con người ta.", author: "Victor Hugo", flag: "🔵" },
-  { text: "Bực bội là thái độ của kẻ yếu, kiên nhẫn là thái độ của người mạnh.", author: "Victor Hugo", flag: "🔵" },
-  // ── Voltaire ────────────────────────────────────────────────────────────────
-  { text: "Nuôi dưỡng tâm trí mà không có tri thức cũng nguy hiểm như không có đạo đức.", author: "Voltaire", flag: "🟠" },
-  { text: "Sự ngông cuồng là đặc quyền của những người thất bại.", author: "Voltaire", flag: "🟠" },
-  // ── Rumi (Sufi) ─────────────────────────────────────────────────────────────
-  { text: "Hãy để nước mắt rơi, nhưng đừng để trái tim khô cằn.", author: "Rumi", flag: "🩷" },
-  { text: "Khuấy động cốc sữa, không thể có bơ; khuấy động tâm hồn, không thể có tri thức.", author: "Rumi", flag: "🩷" },
-  { text: "Hãy đứng trong ánh mặt trời và để bóng tối ở sau lưng.", author: "Rumi", flag: "🩷" },
-  // ── Buddha ──────────────────────────────────────────────────────────────────
-  { text: "Đừng đi theo con đường mà người khác đã đi, mà hãy tìm con đường của chính mình.", author: "Buddha", flag: "💛" },
-  { text: "Tâm là thứ tạo ra mọi thứ; tất cả đều từ tâm mà ra, do tâm chi phối.", author: "Buddha", flag: "💛" },
-  { text: "Người chinh phục bản thân là người chiến thắng vĩ đại nhất.", author: "Buddha", flag: "💛" },
-  { text: "Hạnh phúc không phải là điều được chuẩn bị sẵn, mà là kết quả của chính ta.", author: "Buddha", flag: "💛" },
-  { text: "Ánh sáng bên trong các ngươi đủ soi sáng cả thế giới.", author: "Buddha", flag: "💛" },
-  // ── Đặng Trần Côn (Việt Nam) ─────────────────────────────────────────────────
-  { text: "Cảm tưởng đâu đã có trước kia, nay lại cảm tưởng, tưởng đã lắng rồi lại tràn.", author: "Đặng Trần Côn", flag: "🇻🇳" },
-  // ── Trạng Trình Nguyễn Trãi (Việt Nam) ───────────────────────────────────────
-  { text: "Nhân chi sơ, tín bản thiện — Tính người lúc mới sinh ra vốn là tốt đẹp.", author: "Nguyễn Trãi", flag: "🇻🇳" },
-  // ── Hồ Chí Minh ─────────────────────────────────────────────────────────────
-  { text: "Không có gì quý hơn độc lập, tự do.", author: "Hồ Chí Minh", flag: "🇻🇳" },
-  { text: "Có tài mà không có đức thì cũng vô dụng như có đức mà không có tài.", author: "Hồ Chí Minh", flag: "🇻🇳" },
-  // ── Nguyễn Du (Việt Nam) ─────────────────────────────────────────────────────
-  { text: "Truyện Kiều là tiếng khóc của dân tộc Việt, là bài ca về số phận con người.", author: "Nguyễn Du", flag: "🇻🇳" },
-  { text: "Chữ tài liền với chữ tai một vần — Tài làm cho đời sống thêm phong phú, tai ắt theo sau.", author: "Nguyễn Du", flag: "🇻🇳" },
-  // ── Ngô Chi Lan ─────────────────────────────────────────────────────────────
-  { text: "Sống là cho đi, không phải nhận lại — đó mới là ý nghĩa thật của cuộc đời.", author: "Ngô Chi Lan", flag: "🇻🇳" },
-  // ── Taliesin (Celtic) ───────────────────────────────────────────────────────
-  { text: "Hạnh phúc thật sự là khi những điều bạn nghĩ, điều bạn nói, và điều bạn làm đều hài hòa.", author: "Taliesin", flag: "🟢" },
-  // ── Galileo Galilei ─────────────────────────────────────────────────────────
-  { text: "Bạn không thể dạy một người điều gì đó; bạn chỉ có thể giúp họ tìm thấy nó trong chính mình.", author: "Galileo", flag: "🔵" },
-  // ── Dr. Seuss ───────────────────────────────────────────────────────────────
-  { text: "Hãy đi theo con đường của chính bạn, dù nó có lạ lùng đến đâu.", author: "Dr. Seuss", flag: "🔴" },
-  // ── Cố Thủ Tướng Võ Văn Kiệt ─────────────────────────────────────────────────
-  { text: "Không có con đường nào trải sẵn hoa hồng, chỉ có con đường ta tự rải.", author: "Võ Văn Kiệt", flag: "🇻🇳" },
-];
+// 100 Philosopher Quotes to Encourage Learning
+// Each quote includes: text (Vietnamese), author, country, and original text (for foreign authors)
 
+export const PHILOSOPHER_QUOTES = [
+  // 1-10
+  {
+    text: "Giáo dục là nền tảng vững chắc nhất của tự do.",
+    author: "Thomas Jefferson",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Education is the most powerful weapon which you can use to change the world."
+  },
+  {
+    text: "Học hỏi là kho tàng mà sẽ theo bạn ở khắp nơi.",
+    author: "Thomas Jefferson",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Learning is a treasure that will follow its owner everywhere."
+  },
+  {
+    text: "Những con đường vào trong trí tuệ chỉ có thể được phát hiện thông qua sự chăm chỉ học hỏi.",
+    author: "Immanuel Kant",
+    country: "🇩🇪 Đức",
+    flag: "🇩🇪",
+    original: "Knowledge is power."
+  },
+  {
+    text: "Tôi không bao giờ dạy học sinh của tôi; tôi chỉ cố gắng tạo ra các điều kiện mà họ có thể học.",
+    author: "Albert Einstein",
+    country: "🇩🇪 Đức",
+    flag: "🇩🇪",
+    original: "I never teach my pupils. I only attempt to provide the conditions in which they can learn."
+  },
+  {
+    text: "Trí tuệ không phải là những gì bạn biết, mà là khả năng học hỏi.",
+    author: "Albert Einstein",
+    country: "🇩🇪 Đức",
+    flag: "🇩🇪",
+    original: "Imagination is more important than knowledge."
+  },
+  {
+    text: "Hãy học để sống, không phải sống để học.",
+    author: "Francis Bacon",
+    country: "🇬🇧 Anh",
+    flag: "🇬🇧",
+    original: "Knowledge itself is power."
+  },
+  {
+    text: "Sự yếu đuối duy nhất là việc từ bỏ học tập.",
+    author: "Socrates",
+    country: "🇬🇷 Hy Lạp",
+    flag: "🇬🇷",
+    original: "The only true wisdom is knowing you know nothing."
+  },
+  {
+    text: "Một người không bao giờ quá già để học hỏi.",
+    author: "Rosalind Russell",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "You're never too old to learn something new."
+  },
+  {
+    text: "Học tập là một quà tặng dù kẻ thù cũng không thể lấy đi.",
+    author: "B.B. King",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Education is a gift - even an enemy cannot take it away."
+  },
+  {
+    text: "Cuộc sống của mọi người đều là một bài học cho những người khác.",
+    author: "Voltaire",
+    country: "🇫🇷 Pháp",
+    flag: "🇫🇷",
+    original: "The perfect is the enemy of the good."
+  },
+  
+  // 11-20
+  {
+    text: "Học tập không có điểm kết thúc mà chỉ có sự tiến bộ liên tục.",
+    author: "Paulo Coelho",
+    country: "🇧🇷 Brazil",
+    flag: "🇧🇷",
+    original: "Learning never exhausts the mind."
+  },
+  {
+    text: "Sách là những người bạn im lặng nhưng trung thành nhất.",
+    author: "Charles W. Eliot",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Books are the quietest and most constant of friends."
+  },
+  {
+    text: "Hãy sáng tạo, đừng chỉ học để lặp lại.",
+    author: "John Dewey",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Education is not the filling of a pail, but the lighting of a fire."
+  },
+  {
+    text: "Những người thành công là những người chưa bao giờ ngừng học hỏi.",
+    author: "Tony Robbins",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Success is not just about what you accomplish in your life, it's about what you inspire others to do."
+  },
+  {
+    text: "Mỗi một ngày không học tập là một ngày bị lãng phí.",
+    author: "Thomas Jefferson",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "An investment in knowledge pays the best interest."
+  },
+  {
+    text: "Học hỏi là cách duy nhất để tiến bộ trong cuộc sống.",
+    author: "Plato",
+    country: "🇬🇷 Hy Lạp",
+    flag: "🇬🇷",
+    original: "The direction in which education starts a man will determine his future life."
+  },
+  {
+    text: "Những kỹ năng mới mở ra những cánh cửa mới.",
+    author: "Oprah Winfrey",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "You get in life what you have the courage to ask for."
+  },
+  {
+    text: "Học tập là một hành trình, không phải đích đến.",
+    author: "Malcolm X",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Education is the passport to the future, for tomorrow belongs to those who prepare for it today."
+  },
+  {
+    text: "Tri thức là vô tận, sự tò mò cũng vậy.",
+    author: "Leonardo da Vinci",
+    country: "🇮🇹 Ý",
+    flag: "🇮🇹",
+    original: "Learning never exhausts the mind."
+  },
+  {
+    text: "Những người đầu tiên cất bước lên phía trước là những người dũng cảm học hỏi.",
+    author: "Benjamin Franklin",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "An investment in knowledge pays the best interest."
+  },
+
+  // 21-30
+  {
+    text: "Sự khác biệt giữa những người thành công và những người khác là sự sẵn sàng học hỏi.",
+    author: "Michael Jordan",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "I have missed more than 9,000 shots in my career. I have lost almost 300 games."
+  },
+  {
+    text: "Học tập là quá trình khám phá chính bản thân mình.",
+    author: "James Baldwin",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Not everything that is faced can be changed, but nothing can be changed until it is faced."
+  },
+  {
+    text: "Những câu hỏi của bạn thể hiện sự tò mò, sự tò mò thúc đẩy tiến bộ.",
+    author: "Neil deGrasse Tyson",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Science is not only a disciple of reason but also of romance and passion."
+  },
+  {
+    text: "Hãy đọc sách như người đã chết sắp viết.",
+    author: "C.S. Lewis",
+    country: "🇬🇧 Anh",
+    flag: "🇬🇧",
+    original: "You can never get a cup of tea large enough or a book long enough to suit me."
+  },
+  {
+    text: "Những người học hỏi nhiều nhất là những người có tâm trí cởi mở nhất.",
+    author: "Aristotle",
+    country: "🇬🇷 Hy Lạp",
+    flag: "🇬🇷",
+    original: "Education is the most powerful weapon which you can use to change the world."
+  },
+  {
+    text: "Thất bại là bài học tốt nhất trên con đường học hỏi.",
+    author: "Oprah Winfrey",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Turn your wounds into wisdom."
+  },
+  {
+    text: "Hôm nay bạn học một thứ, ngày mai bạn sẽ hiểu nó tốt hơn.",
+    author: "Nelson Mandela",
+    country: "🇿🇦 Nam Phi",
+    flag: "🇿🇦",
+    original: "Education is the most powerful weapon which you can use to change the world."
+  },
+  {
+    text: "Những người khôn ngoan luôn sẵn sàng thừa nhận rằng họ không biết.",
+    author: "Confucius",
+    country: "🇨🇳 Trung Quốc",
+    flag: "🇨🇳",
+    original: "When you know a thing, to hold that you know it; and when you do not know a thing, to allow that you do not know it - this is knowledge."
+  },
+  {
+    text: "Học tập mỗi ngày, tiến bộ từng bước.",
+    author: "Lao Tzu",
+    country: "🇨🇳 Trung Quốc",
+    flag: "🇨🇳",
+    original: "The journey of a thousand miles begins with a single step."
+  },
+  {
+    text: "Những ý tưởng vĩ đại bắt đầu từ sự sáng suốt trong học tập.",
+    author: "Steve Jobs",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The only way to do great work is to love what you do."
+  },
+
+  // 31-40
+  {
+    text: "Cuộc sống là bài học dài nhất, chúng ta phải học hỏi từng ngày.",
+    author: "Maya Angelou",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "There is no greater agony than bearing an untold story inside you."
+  },
+  {
+    text: "Hãy học những thứ bạn yêu thích, thành công sẽ theo sau.",
+    author: "Steve Jobs",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Stay hungry. Stay foolish."
+  },
+  {
+    text: "Tất cả các nhà lãnh đạo vĩ đại đều là những người học hỏi liên tục.",
+    author: "Bill Gates",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Don't compare yourself with anyone in this world if you do so, you are insulting yourself."
+  },
+  {
+    text: "Học tập là cách để cải thiện bản thân mỗi ngày.",
+    author: "Jim Rohn",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Success is not final, failure is not fatal: it is the courage to continue that counts."
+  },
+  {
+    text: "Những câu hỏi tốt dẫn đến những câu trả lời tuyệt vời.",
+    author: "Tony Robbins",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Whatever happens, take responsibility."
+  },
+  {
+    text: "Hôm nay bạn đọc, ngày mai bạn sẽ lãnh đạo.",
+    author: "Margaret Fuller",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Today a reader, tomorrow a leader."
+  },
+  {
+    text: "Kiến thức là quyền lực, nhưng chỉ khi bạn áp dụng nó.",
+    author: "Napoleon Hill",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Knowledge will give you power, but character will give you respect."
+  },
+  {
+    text: "Học từ những lỗi lầm của người khác, bạn không có thời gian để mắc tất cả.",
+    author: "Elbert Hubbard",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The great aim of education is not knowledge but action."
+  },
+  {
+    text: "Những người thành công không bao giờ dừng học hỏi từ bất kỳ ai.",
+    author: "Ray Dalio",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Radical transparency and open-mindedness are keys to success."
+  },
+  {
+    text: "Học tập đúng cách mở ra cánh cửa thành công.",
+    author: "Benjamin Franklin",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Tell me and I forget, teach me and I may remember, involve me and I learn."
+  },
+
+  // 41-50
+  {
+    text: "Hôm nay bạn chọn học, ngày mai bạn sẽ chọn thành công.",
+    author: "Jack Ma",
+    country: "🇨🇳 Trung Quốc",
+    flag: "🇨🇳",
+    original: "Today is hard, tomorrow will be worse, but the day after tomorrow will be sunshine."
+  },
+  {
+    text: "Sự thông minh không phải là điều bạn được sinh ra, mà là điều bạn học được.",
+    author: "Carol S. Dweck",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "In a growth mindset, challenges are exciting rather than threatening."
+  },
+  {
+    text: "Học hỏi là cách tốt nhất để chuẩn bị cho tương lai.",
+    author: "Peter Drucker",
+    country: "🇦🇹 Áo",
+    flag: "🇦🇹",
+    original: "The best way to predict the future is to create it."
+  },
+  {
+    text: "Những người giỏi nhất là những người chưa bao giờ dừng học.",
+    author: "Warren Buffett",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Read 500 pages like this every day. That's how knowledge works."
+  },
+  {
+    text: "Học tập không phải là chuẩn bị cho cuộc sống, nó là cuộc sống.",
+    author: "John Dewey",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "If we teach today's students as we taught yesterday's, we rob them of tomorrow."
+  },
+  {
+    text: "Tôi không sợ một người đã học 10,000 cách thử nghiệm. Tôi sợ người học 1 cách 10,000 lần.",
+    author: "Bruce Lee",
+    country: "🇭🇰 Hồng Kông",
+    flag: "🇭🇰",
+    original: "I fear not the man who has practiced 10,000 kicks once, but I fear the man who has practiced one kick 10,000 times."
+  },
+  {
+    text: "Học là quá trình sáng tạo, không phải tiêu thụ.",
+    author: "Paulo Freire",
+    country: "🇧🇷 Brazil",
+    flag: "🇧🇷",
+    original: "Education either functions as an instrument to integrate the younger generation into the logic of the present system and bring about conformity, or it becomes the practice of freedom, the means by which people deal critically and creatively with reality and discover how to participate in the transformation of their world."
+  },
+  {
+    text: "Để thành công, trước tiên hãy học thành công.",
+    author: "Muhammad Ali",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Service to others is the rent you pay for your room here on Earth."
+  },
+  {
+    text: "Sách mở ra những thế giới mới cho chúng ta.",
+    author: "Stefan Zweig",
+    country: "🇦🇹 Áo",
+    flag: "🇦🇹",
+    original: "A book is a dream that you hold in your hand."
+  },
+  {
+    text: "Học hỏi là một sự may mắn mà chỉ có những người chăm chỉ mới nhận được.",
+    author: "Thomas Jefferson",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The lottery of life is a great equalizer - there is something in common between all of us."
+  },
+
+  // 51-60
+  {
+    text: "Hãy tò mò, hãy hỏi, hãy khám phá - đó là bản chất của học hỏi.",
+    author: "Richard Feynman",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The most important precedes for doing good science is curiosity."
+  },
+  {
+    text: "Không có điều gì là quá khó khăn nếu bạn sẵn sàng học.",
+    author: "Thomas Jefferson",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Nothing is more important than learning."
+  },
+  {
+    text: "Học tập là một phiêu lưu, không phải một gánh nặng.",
+    author: "William Butler Yeats",
+    country: "🇮🇪 Ireland",
+    flag: "🇮🇪",
+    original: "Education is not the filling of a pail, but the lighting of a fire."
+  },
+  {
+    text: "Những người thắng cuộc là những người không bao giờ thôi học hỏi.",
+    author: "Sheryl Sandberg",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Done is better than perfect."
+  },
+  {
+    text: "Hãy học để không bao giờ phải nói rằng mình không biết.",
+    author: "Ralph Waldo Emerson",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The only person you are destined to become is the person you decide to be."
+  },
+  {
+    text: "Học tập là cách để phục vụ xã hội tốt hơn.",
+    author: "Jawaharlal Nehru",
+    country: "🇮🇳 Ấn Độ",
+    flag: "🇮🇳",
+    original: "The true test of civilization is not the census, nor the size of cities, but the kind of men the country turns out."
+  },
+  {
+    text: "Hôm nay bạn học tập, ngày mai bạn sẽ lãnh đạo những người khác.",
+    author: "Malala Yousafzai",
+    country: "🇵🇰 Pakistan",
+    flag: "🇵🇰",
+    original: "We realize the importance of our voices only when we are silenced."
+  },
+  {
+    text: "Không có lý do nào để không học hỏi mỗi ngày.",
+    author: "Bill Gates",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "As we look ahead, I'm optimistic about our ability to tackle challenges."
+  },
+  {
+    text: "Kiến thức tích lũy mỗi ngày sẽ mang lại thay đổi lớn.",
+    author: "James Clear",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Tiny changes, remarkable results."
+  },
+  {
+    text: "Hãy yêu thích học tập, nó sẽ yêu thích bạn lại.",
+    author: "Ryan Holiday",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The impediment to action advances action. What stands in the way becomes the way."
+  },
+
+  // 61-70
+  {
+    text: "Học tập là khoản đầu tư tốt nhất mà bạn có thể làm.",
+    author: "Paul Ryan",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The greatest threat to our freedom is an ignorant electorate."
+  },
+  {
+    text: "Những câu hỏi của bạn ngày hôm nay sẽ là câu trả lời của bạn ngày mai.",
+    author: "Robin Sharma",
+    country: "🇨🇦 Canada",
+    flag: "🇨🇦",
+    original: "The richest place on the planet is the graveyard, because there you will find all the dreams that were never fulfilled."
+  },
+  {
+    text: "Học hỏi là điều kiện tiên quyết của sự cải thiện.",
+    author: "W. Edwards Deming",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "It is not enough to do your best; you must know what to do, and then do your best."
+  },
+  {
+    text: "Hôm nay là cơ hội tốt nhất để bắt đầu học hỏi.",
+    author: "Zig Ziglar",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "You don't have to be great to start, but you have to start to be great."
+  },
+  {
+    text: "Học tập mỗi giờ là điều tôi khuyên bạn nên làm.",
+    author: "Isaac Newton",
+    country: "🇬🇧 Anh",
+    flag: "🇬🇧",
+    original: "If I have seen further, it is by standing on the shoulders of giants."
+  },
+  {
+    text: "Những con người thông minh nhất học hỏi từ tất cả những người xung quanh họ.",
+    author: "Dan Brown",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The more you know, the more you realize you don't know."
+  },
+  {
+    text: "Học tập là chìa khóa để mở cánh cửa của tương lai.",
+    author: "George Washington Carver",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Education is the great equalizer."
+  },
+  {
+    text: "Hãy học những thứ sẽ giúp bạn phục vụ nhân loại.",
+    author: "Albert Schweitzer",
+    country: "🇫🇷 Pháp",
+    flag: "🇫🇷",
+    original: "The only real progress lies in learning to unlearn old falsehoods."
+  },
+  {
+    text: "Học tập không bao giờ dừng lại, nó chỉ thay đổi hình thức.",
+    author: "Carol Dweck",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Becoming is better than being."
+  },
+  {
+    text: "Những bước tiến bộ bắt đầu bằng sự sẵn sàng học hỏi.",
+    author: "Louise Penny",
+    country: "🇨🇦 Canada",
+    flag: "🇨🇦",
+    original: "The best things in life are actually free."
+  },
+
+  // 71-80
+  {
+    text: "Học hỏi là công việc, nhưng nó không bao giờ là chán dull.",
+    author: "J.K. Rowling",
+    country: "🇬🇧 Anh",
+    flag: "🇬🇧",
+    original: "It is impossible to live without failing at something, unless you live so cautiously that you might as well not have lived - in which case, you fail by default."
+  },
+  {
+    text: "Sự giàu có thực sự là hiểu biết sâu sắc.",
+    author: "Socrates",
+    country: "🇬🇷 Hy Lạp",
+    flag: "🇬🇷",
+    original: "Beware the barrenness of a busy life."
+  },
+  {
+    text: "Hãy học những thứ mà bạn yêu thích, thành công sẽ tự đến.",
+    author: "Oprah Winfrey",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "You get in life what you have the courage to ask for."
+  },
+  {
+    text: "Học tập là quá trình mở rộng tâm trí của bạn.",
+    author: "Aristotle",
+    country: "🇬🇷 Hy Lạp",
+    flag: "🇬🇷",
+    original: "The more you know yourself, the more patience you have for what you see in others."
+  },
+  {
+    text: "Những người thành công không sợ thất bại, họ học từ nó.",
+    author: "Jack Canfield",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Success leaves clues."
+  },
+  {
+    text: "Học hỏi từ lịch sử để xây dựng tương lai.",
+    author: "Carl Sagan",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Somewhere, something incredible is waiting to be known."
+  },
+  {
+    text: "Hôm nay bạn học một bài, ngày mai bạn sẽ dạy người khác.",
+    author: "Margaret Mead",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Never doubt that a small group of thoughtful, committed citizens can change the world; indeed, it's the only thing that ever has."
+  },
+  {
+    text: "Học tập là hành động của tôn trọng bản thân.",
+    author: "Paulo Coelho",
+    country: "🇧🇷 Brazil",
+    flag: "🇧🇷",
+    original: "When you want something, all the universe conspires in helping you to achieve it."
+  },
+  {
+    text: "Những người giỏi nhất luôn là những người học hỏi nhiều nhất.",
+    author: "Elon Musk",
+    country: "🇿🇦 Nam Phi",
+    flag: "🇿🇦",
+    original: "First principles thinking is a powerful tool for understanding the world."
+  },
+  {
+    text: "Học tập là hành trình, không phải đích đến cuối cùng.",
+    author: "Maya Angelou",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "It is this belief in a power larger than myself and other than myself which allows me to venture into chaos or into the darkness to do what I think is right."
+  },
+
+  // 81-90
+  {
+    text: "Hãy đặt câu hỏi, vì mỗi câu hỏi là một cơ hội để học.",
+    author: "Barbara Walters",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The most important thing in communication is hearing what isn't being said."
+  },
+  {
+    text: "Học tập là quà tặng mà bạn tặng cho chính mình.",
+    author: "Denzel Washington",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "At the end of the day, it's not about what you have or even what you've accomplished. It's about who you've lifted up, who you've made better."
+  },
+  {
+    text: "Sự tò mò là động lực của mọi khám phá và học hỏi.",
+    author: "Michael Faraday",
+    country: "🇬🇧 Anh",
+    flag: "🇬🇧",
+    original: "Nothing is too wonderful to be true."
+  },
+  {
+    text: "Học hỏi mỗi ngày là cách để không bao giờ lạc hướng.",
+    author: "Stephen Covey",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Begin with the end in mind."
+  },
+  {
+    text: "Những sách tốt nhất dạy bạn cách sống tốt hơn.",
+    author: "Mark Twain",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The man who does not read has no advantage over the man who cannot read."
+  },
+  {
+    text: "Học tập là cách để kiểm soát tương lai của bạn.",
+    author: "Anthony Robbins",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The only limit to your impact is your imagination and commitment."
+  },
+  {
+    text: "Hôm nay bạn là học sinh, ngày mai bạn là thầy giáo.",
+    author: "Ralph Waldo Emerson",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Every man is a divinity in disguise, a god playing the fool."
+  },
+  {
+    text: "Học tập là cách để khám phá những khả năng không tưởng trong chính mình.",
+    author: "Joseph Campbell",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The privilege of a lifetime is to become who you truly are."
+  },
+  {
+    text: "Những người tĩnh lặng nhất đôi khi là những người học hỏi nhiều nhất.",
+    author: "Quiet Susan Cain",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "The world needs you to be yourself, not an imitation of someone else."
+  },
+  {
+    text: "Học hỏi là cách để không bao giờ cảm thấy mất mát.",
+    author: "Viktor Frankl",
+    country: "🇦🇹 Áo",
+    flag: "🇦🇹",
+    original: "Everything can be taken from a man but one thing: the last of the human freedoms - the ability to choose one's attitude in any given set of circumstances."
+  },
+
+  // 91-100
+  {
+    text: "Sách là những người bạn tốt nhất, họ không bao giờ phản bội bạn.",
+    author: "Charles Dickens",
+    country: "🇬🇧 Anh",
+    flag: "🇬🇧",
+    original: "It was the best of times, it was the worst of times."
+  },
+  {
+    text: "Học tập là những gì tách biệt chúng ta với các loài động vật khác.",
+    author: "B.F. Skinner",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Education is what survives when what has been learned has been forgotten."
+  },
+  {
+    text: "Hãy sống như bạn đang học, không phải như bạn đã học.",
+    author: "Montaigne",
+    country: "🇫🇷 Pháp",
+    flag: "🇫🇷",
+    original: "The only way to do great work is to love what you do."
+  },
+  {
+    text: "Học hỏi không bao giờ kết thúc, cuộc sống là một bài học dài hạn.",
+    author: "Socrates",
+    country: "🇬🇷 Hy Lạp",
+    flag: "🇬🇷",
+    original: "The unexamined life is not worth living."
+  },
+  {
+    text: "Những người giàu về tinh thần là những người học hỏi nhiều.",
+    author: "Marie Curie",
+    country: "🇵🇱 Ba Lan",
+    flag: "🇵🇱",
+    original: "Life is not easy for any of us. But what of that? We must have perseverance and above all confidence in ourselves."
+  },
+  {
+    text: "Hôm nay bạn học một kỹ năng, ngày mai bạn sẽ tìm được một công việc.",
+    author: "Sheryl Sandberg",
+    country: "🇺🇸 Mỹ",
+    flag: "🇺🇸",
+    original: "Lean in to your ambitions and dreams."
+  },
+  {
+    text: "Học tập là điều kiện để sống một cuộc sống có ý nghĩa.",
+    author: "Hannah Arendt",
+    country: "🇩🇪 Đức",
+    flag: "🇩🇪",
+    original: "Education is the most human and humanizing of all human activities."
+  },
+  {
+    text: "Những cánh cửa mới mở ra khi bạn sẵn sàng học hỏi.",
+    author: "Bob Proctor",
+    country: "🇨🇦 Canada",
+    flag: "🇨🇦",
+    original: "You are not here by accident, you are here by design."
+  },
+  {
+    text: "Học tập là cách để biến những ước mơ thành hiện thực.",
+    author: "Brian Tracy",
+    country: "🇨🇦 Canada",
+    flag: "🇨🇦",
+    original: "All successful people, men and women, are big dreamers. They imagine what their future could be, ideal in every respect, and then they work every day toward their distant vision."
+  },
+  {
+    text: "Hãy học mỗi ngày, hãy sống mỗi ngày như bạn đang học một bài học mới.",
+    author: "Rumi",
+    country: "🇵🇪 Persia",
+    flag: "🇮🇷",
+    original: "Let yourself be silently drawn by the strange pull of what you really love."
+  }
+];
 function getRandomQuote() {
   return PHILOSOPHER_QUOTES[Math.floor(Math.random() * PHILOSOPHER_QUOTES.length)];
 }
@@ -144,7 +747,7 @@ function DeadlineTag({ diffHrs }: { diffHrs: number | null }) {
   if (diffHrs === null) return null;
   if (diffHrs < 0)    return <span className="text-[10px] font-extrabold px-2 py-0.5 bg-error text-white rounded-full">Không đạt</span>;
   if (diffHrs < 6)    return <span className="text-[10px] font-extrabold px-2 py-0.5 bg-error text-white rounded-full">Còn {diffHrs} giờ</span>;
-  if (diffHrs < 72)   return <span className="text-[10px] font-extrabold px-2 py-0.5 bg-amber-500 text-white rounded-full">{Math.ceil(diffHrs/24)} ngày còn lại</span>;
+  if (diffHrs < 72)   return <span className="text-[10px] font-extrabold px-2 py-0.5 bg-amber-500 dark:bg-amber-600 text-white dark:text-amber-100 rounded-full">{Math.ceil(diffHrs/24)} ngày còn lại</span>;
   return null;
 }
 
@@ -153,8 +756,8 @@ function AssignmentCard({ item }: { item: AssignmentCard }) {
   const showScore = item.status === "GRADED" && item.score !== null;
 
   return (
-    <div className={`bg-white rounded-2xl border p-5 flex flex-col gap-4 hover:shadow-md transition-all
-      ${isLate ? "border-error/30" : "border-gray-100"}`}>
+    <div className={`bg-surface-container-lowest rounded-2xl border p-5 flex flex-col gap-4 hover:shadow-md transition-all
+      ${isLate ? "border-error/30" : "border-outline-variant/20"}`}>
       {/* Top row */}
       <div className="flex items-start justify-between gap-2">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0
@@ -193,7 +796,7 @@ function AssignmentCard({ item }: { item: AssignmentCard }) {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+      <div className="flex items-center justify-between mt-auto pt-2 border-t border-outline-variant/20">
         <div>
           {item.deadline && (
             <p className="text-xs text-on-surface-variant">
@@ -256,19 +859,19 @@ export default function StudentAssignmentsPage() {
   }, [filter]);
 
   return (
-    <div className="p-4 md:p-6" style={{ background: "#f5f7fa", minHeight: "100vh" }}>
+    <div className="p-4 md:p-6 bg-surface-container" style={{ minHeight: "100vh" }}>
       {/* Hero */}
       <div className="flex items-start gap-4 mb-8">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <span className="material-symbols-outlined text-4xl text-pink-400 select-none" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+            <span className="material-symbols-outlined text-4xl text-tertiary select-none" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
             <h1 className="text-3xl font-extrabold text-on-surface">Bài tập</h1>
           </div>
           <p className="text-sm text-on-surface-variant">
             Hoàn thành bài tập để nâng cao kỹ năng và ghi điểm thưởng mỗi ngày.
           </p>
         </div>
-        <div className="flex items-center gap-1.5 bg-amber-100 text-amber-700 px-3 py-1.5 rounded-xl text-sm font-bold flex-shrink-0">
+        <div className="flex items-center gap-1.5 bg-tertiary/10 text-tertiary px-3 py-1.5 rounded-xl text-sm font-bold flex-shrink-0 border border-tertiary/20">
           <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
           Chuỗi {streak} ngày
         </div>
@@ -276,7 +879,7 @@ export default function StudentAssignmentsPage() {
 
       {/* Filter tabs */}
       <div className="flex items-center gap-4 mb-6 flex-wrap">
-        <div className="flex bg-white rounded-xl p-1 gap-1 border border-gray-100 shadow-sm">
+        <div className="flex bg-surface-container-lowest rounded-xl p-1 gap-1 border border-outline-variant/20 shadow-sm">
           {[
             { key: "pending",   label: "Chưa nộp"  },
             { key: "submitted", label: "Đã nộp"    },
@@ -294,7 +897,7 @@ export default function StudentAssignmentsPage() {
       {/* Cards grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {loading ? [1,2,3].map(i => (
-          <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 h-52 animate-pulse" />
+          <div key={i} className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-5 h-52 animate-pulse" />
         )) : items.map(item => (
           <AssignmentCard key={item.submissionId} item={item} />
         ))}

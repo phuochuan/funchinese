@@ -562,3 +562,13 @@ model UserProfile {
 
   @@map("user_profiles")
 }
+
+// ─── App Settings ─────────────────────────────────────────────────────────────
+model AppSetting {
+  id        String   @id @default("global")   // single-row key
+  theme     String   @default("red")          // primary color: "red" | "blue" | "green" | "purple" | "orange" | "teal" | "pink"
+  themeMode String   @default("light")        // "light" | "dark" | "system"
+  updatedAt DateTime @updatedAt
+
+  @@map("app_settings")
+}

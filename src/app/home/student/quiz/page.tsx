@@ -39,21 +39,21 @@ export default function PracticeSetup() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] pb-12">
+    <div className="min-h-screen bg-surface-container pb-12">
       <div className="max-w-5xl mx-auto px-6 pt-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-10">
           <div>
-            <h1 className="text-3xl font-bold text-[#1e2937]">Practice</h1>
-            <p className="text-gray-500">Luyện tập theo trình độ HSK</p>
+            <h1 className="text-3xl font-bold text-on-surface">Practice</h1>
+            <p className="text-on-surface-variant">Luyện tập theo trình độ HSK</p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="bg-white px-4 py-2 rounded-xl shadow-sm flex items-center gap-2">
-              <Target className="w-5 h-5 text-blue-600" />
+            <div className="bg-surface-container-lowest px-4 py-2 rounded-xl shadow-sm border border-outline-variant/20 flex items-center gap-2">
+              <Target className="w-5 h-5 text-primary" />
               <div>
-                <div className="text-sm font-medium">HSK {level}</div>
-                <div className="text-xs text-gray-500">Tiến độ học tập</div>
+                <div className="text-sm font-medium text-on-surface">HSK {level}</div>
+                <div className="text-xs text-on-surface-variant">Tiến độ học tập</div>
               </div>
             </div>
           </div>
@@ -62,14 +62,14 @@ export default function PracticeSetup() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left */}
           <div className="lg:col-span-5">
-            <div className="bg-white rounded-3xl p-8 shadow-sm">
+            <div className="bg-surface-container-lowest rounded-3xl p-8 shadow-sm border border-outline-variant/20">
               <div className="text-center mb-6">
-                <div className="inline-block bg-blue-100 text-blue-600 text-xs font-medium px-3 py-1 rounded-full mb-3">
+                <div className="inline-block bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full mb-3">
                   CHARACTER OF THE DAY
                 </div>
-                <div className="text-8xl mb-4">书</div>
-                <div className="text-2xl font-semibold">Thư / Book</div>
-                <p className="text-gray-600 mt-2">
+                <div className="text-8xl mb-4 chinese-text">书</div>
+                <div className="text-2xl font-semibold text-on-surface">Thư / Book</div>
+                <p className="text-on-surface-variant mt-2">
                   Tập trung vào sự cân bằng giữa nét ngang và nét dọc hôm nay.
                 </p>
               </div>
@@ -78,14 +78,14 @@ export default function PracticeSetup() {
 
           {/* Right */}
           <div className="lg:col-span-7 space-y-8">
-            <div className="bg-white rounded-3xl p-8 shadow-sm">
-              <h2 className="text-2xl font-bold mb-6">
+            <div className="bg-surface-container-lowest rounded-3xl p-8 shadow-sm border border-outline-variant/20">
+              <h2 className="text-2xl font-bold text-on-surface mb-6">
                 Thiết lập buổi luyện tập
               </h2>
 
               {/* LEVEL */}
               <div className="mb-8">
-                <label className="block text-sm font-medium text-gray-600 mb-3">
+                <label className="block text-sm font-medium text-on-surface-variant mb-3">
                   Trình độ HSK
                 </label>
 
@@ -96,8 +96,8 @@ export default function PracticeSetup() {
                       onClick={() => setLevel(lv)}
                       className={`py-4 rounded-2xl font-semibold transition-all ${
                         level === lv
-                          ? 'bg-blue-600 text-white shadow-md scale-105'
-                          : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                          ? 'bg-primary text-on-primary shadow-md scale-105'
+                          : 'bg-surface-container hover:bg-surface-container-high text-on-surface'
                       }`}
                     >
                       HSK {lv}
@@ -108,7 +108,7 @@ export default function PracticeSetup() {
 
               {/* DURATION */}
               <div className="mb-8">
-                <label className="block text-sm font-medium text-gray-600 mb-3">
+                <label className="block text-sm font-medium text-on-surface-variant mb-3">
                   Thời lượng buổi học
                 </label>
 
@@ -119,8 +119,8 @@ export default function PracticeSetup() {
                       onClick={() => setDuration(min)}
                       className={`py-6 rounded-2xl font-semibold text-lg transition-all ${
                         duration === min
-                          ? 'bg-blue-600 text-white shadow-lg scale-105'
-                          : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                          ? 'bg-primary text-on-primary shadow-lg scale-105'
+                          : 'bg-surface-container hover:bg-surface-container-high text-on-surface'
                       }`}
                     >
                       {min} phút
@@ -133,31 +133,31 @@ export default function PracticeSetup() {
               <button
                 onClick={startPractice}
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-4 rounded-2xl text-lg flex items-center justify-center gap-3 transition"
+                className="w-full bg-primary hover:brightness-110 disabled:opacity-50 text-on-primary font-semibold py-4 rounded-2xl text-lg flex items-center justify-center gap-3 transition"
               >
                 {loading ? 'Đang chuẩn bị...' : 'Bắt đầu luyện tập →'}
               </button>
 
-              <p className="text-center text-xs text-gray-500 mt-6 italic">
+              <p className="text-center text-xs text-on-surface-variant mt-6 italic">
                 "Hành trình vạn dặm bắt đầu từ một bước chân."
               </p>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white rounded-2xl p-6">
-                <div className="text-4xl font-bold text-green-600">92%</div>
-                <div className="text-sm text-gray-600">
+              <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20">
+                <div className="text-4xl font-bold text-secondary">92%</div>
+                <div className="text-sm text-on-surface-variant">
                   Độ chính xác trung bình HSK {level}
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6">
+              <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/20">
                 <div className="flex items-center gap-2">
                   <div className="text-4xl">🔥</div>
                   <div>
-                    <div className="text-3xl font-bold">12</div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-3xl font-bold text-on-surface">12</div>
+                    <div className="text-sm text-on-surface-variant">
                       ngày streak
                     </div>
                   </div>

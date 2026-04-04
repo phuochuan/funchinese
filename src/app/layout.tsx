@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { DarkModeProvider } from "@/hooks/useDarkMode";
+import { getDarkModeScript } from "@/hooks/darkModeScript";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -29,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className={cn("font-sans", geist.variable)}>
+    <html lang="vi" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -41,9 +43,16 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
         />
+        {/* Dark mode: apply .dark class before React hydrates (no flash) */}
+        <script
+          dangerouslySetInnerHTML={getDarkModeScript()}
+          suppressHydrationWarning
+        />
       </head>
-      <body suppressHydrationWarning className={`${inter.variable} font-body bg-surface text-on-surface antialiased`}>
-        {children}
+      <body suppressHydrationWarning className={`${inter.variable} font-body antialiased`}>
+        <DarkModeProvider>
+          {children}
+        </DarkModeProvider>
       </body>
     </html>
   );

@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const sp       = req.nextUrl.searchParams;
   const sessionId = sp.get("sessionId");
   const lessonId = sp.get("lessonId");
-  const hskLevel = sp.get("hsk");
+  const hskLevel = sp.get("hsk") as "HSK1" | "HSK2" | "HSK3" | "HSK4" | "HSK5" | "HSK6" | null;
   const source   = sp.get("source"); // "weak" = ôn từ yếu
 
   let words: any[]        = [];

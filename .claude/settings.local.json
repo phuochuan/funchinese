@@ -17,7 +17,9 @@
       "Bash(node:*)",
       "Bash(ls:*)",
       "Bash(grep -r \"BASE_PATH\\\\|basePath\" D:/workspace/funchinese/next.config.* D:/workspace/funchinese/.env*)",
-      "Bash(grep -r \"NEXT_PUBLIC_ASSET_PREFIX\\\\|assetPrefix\" D:/workspace/funchinese/next.config.* D:/workspace/funchinese/.env*)"
+      "Bash(grep -r \"NEXT_PUBLIC_ASSET_PREFIX\\\\|assetPrefix\" D:/workspace/funchinese/next.config.* D:/workspace/funchinese/.env*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

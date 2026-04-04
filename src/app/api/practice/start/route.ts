@@ -60,13 +60,27 @@ export async function POST(req: NextRequest) {
       ]);
     }
 
+    // Normalize answer: resolve letter "A"/"B"/"C"/"D" → actual meaning text
+    // This ensures grading (submit API) always compares meaning-to-meaning
+    let correctAnswer = q.answer;
+    if (
+      typeof correctAnswer === 'string' &&
+      /^[A-D]$/.test(correctAnswer) &&
+      q.options &&
+      Array.isArray(q.options)
+    ) {
+      const idx = correctAnswer.charCodeAt(0) - 65; // A→0, B→1, C→2, D→3
+      const rawOptions: string[] = q.options.map(String).map(cleanOption);
+      correctAnswer = rawOptions[idx] ?? correctAnswer;
+    }
+
     return {
       id: q.id,
       hanzi: q.hanzi,
       pinyin: q.pinyin,
       meaningVi: q.meaningVi,
       options,
-      answer: q.answer,
+      answer: correctAnswer,
       audioUrl: q.audioUrl ?? null,
       questionImageUrl: q.questionImageUrl ?? null,
       type: q.type ?? 'MULTIPLE_CHOICE',

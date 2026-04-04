@@ -20,8 +20,8 @@ export async function GET(req: NextRequest) {
   const params = new URLSearchParams({
     client_id:                KEYCLOAK_CLIENT_ID,
     post_logout_redirect_uri: APP_URL,
-    ...(idTokenHint ? { id_token_hint: idTokenHint } : {}),
   });
+  if (idTokenHint) params.set("id_token_hint", idTokenHint);
   const keycloakLogoutUrl = `${KEYCLOAK_ISSUER}/protocol/openid-connect/logout?${params}`;
 
   // 3. Browser visits Keycloak → session cookie cleared → redirect back to APP_URL

@@ -101,19 +101,19 @@ export default function PracticeQuiz() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafc]">
-        <div className="w-10 h-10 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-gray-500 text-lg">Đang tải câu hỏi...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-surface-container">
+        <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-on-surface-variant text-lg">Đang tải câu hỏi...</p>
       </div>
     );
   }
 
   if (!questions.length) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafc] px-6">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-surface-container px-6">
         <p className="text-5xl mb-4">😕</p>
-        <p className="text-gray-500 mb-6 text-center">Không có câu hỏi nào trong phiên này.</p>
-        <button onClick={() => router.push('/home/student')} className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold">
+        <p className="text-on-surface-variant mb-6 text-center">Không có câu hỏi nào trong phiên này.</p>
+        <button onClick={() => router.push('/home/student')} className="px-6 py-3 bg-primary text-on-primary rounded-xl font-bold">
           Về trang chủ
         </button>
       </div>
@@ -124,20 +124,20 @@ export default function PracticeQuiz() {
   const isTimeCritical = timeLeft <= 30;
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] py-4 sm:py-6">
+    <div className="min-h-screen bg-surface-container py-4 sm:py-6">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
 
         {/* ── HEADER ── */}
         <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
           {/* Progress */}
           <div className="flex-1 min-w-0">
-            <div className="text-xs sm:text-sm font-medium text-gray-500">
+            <div className="text-xs sm:text-sm font-medium text-on-surface-variant">
               Câu {currentIndex + 1} / {questions.length}
             </div>
             {/* Progress bar */}
-            <div className="mt-1.5 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div className="mt-1.5 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
               <div
-                className="h-full bg-blue-500 rounded-full transition-all duration-300"
+                className="h-full bg-primary rounded-full transition-all duration-300"
                 style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
               />
             </div>
@@ -145,17 +145,17 @@ export default function PracticeQuiz() {
 
           {/* Timer */}
           <div className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 rounded-2xl shadow-sm transition-all flex-shrink-0 ${
-            isTimeCritical ? 'bg-red-50 ring-1 ring-red-200' : 'bg-white'
+            isTimeCritical ? 'bg-error/10 ring-1 ring-error/30' : 'bg-surface-container-lowest'
           }`}>
-            <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${isTimeCritical ? 'text-red-500 animate-pulse' : 'text-orange-500'}`} />
-            <span className={`font-mono text-sm sm:text-lg font-bold ${isTimeCritical ? 'text-red-500' : 'text-gray-800'}`}>
+            <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${isTimeCritical ? 'text-error animate-pulse' : 'text-tertiary'}`} />
+            <span className={`font-mono text-sm sm:text-lg font-bold ${isTimeCritical ? 'text-error' : 'text-on-surface'}`}>
               {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
             </span>
           </div>
         </div>
 
         {/* ── QUESTION CARD ── */}
-        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-10 shadow-sm border border-gray-100 mb-4">
+        <div className="bg-surface-container-lowest rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-10 shadow-sm border border-outline-variant/20 mb-4">
 
           <div className="text-center mb-6 sm:mb-10">
             {/* IMAGE */}
@@ -170,7 +170,7 @@ export default function PracticeQuiz() {
             )}
 
             {/* HANZI */}
-            <div className="text-[60px] sm:text-[80px] md:text-[100px] leading-none mb-3 sm:mb-5 font-serif text-gray-900 select-none">
+            <div className="text-[60px] sm:text-[80px] md:text-[100px] leading-none mb-3 sm:mb-5 font-serif text-on-surface select-none">
               {q.hanzi}
             </div>
 
@@ -178,7 +178,7 @@ export default function PracticeQuiz() {
             {q.audioUrl && (
               <button
                 onClick={() => new Audio(q.audioUrl!).play().catch(() => {})}
-                className="inline-flex items-center gap-2 px-3 sm:px-5 py-2 mb-3 sm:mb-4 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-sm sm:text-base font-medium"
+                className="inline-flex items-center gap-2 px-3 sm:px-5 py-2 mb-3 sm:mb-4 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm sm:text-base font-medium"
               >
                 <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 Nghe phát âm
@@ -186,11 +186,11 @@ export default function PracticeQuiz() {
             )}
 
             {/* QUESTION TEXT */}
-            <p className="text-base sm:text-xl text-gray-600 px-2">{q.questionText}</p>
+            <p className="text-base sm:text-xl text-on-surface-variant px-2">{q.questionText}</p>
 
             {/* FILL_BLANK badge */}
             {q.type === 'FILL_BLANK' && (
-              <span className="inline-block mt-2 sm:mt-3 px-2.5 sm:px-3 py-1 rounded-full bg-green-50 text-green-600 text-xs sm:text-sm font-semibold">
+              <span className="inline-block mt-2 sm:mt-3 px-2.5 sm:px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs sm:text-sm font-semibold">
                 Điền từ
               </span>
             )}
@@ -211,8 +211,8 @@ export default function PracticeQuiz() {
                     disabled={submitting}
                     className={`w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 text-sm sm:text-base md:text-lg transition-all ${
                       chosen
-                        ? 'border-blue-600 bg-blue-50 font-medium'
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/30'
+                        ? 'border-primary bg-primary/10 font-medium text-on-surface'
+                        : 'border-outline-variant hover:border-primary/50 hover:bg-primary/5 text-on-surface'
                     } ${submitting ? 'pointer-events-none opacity-60' : ''}`}
                   >
                     <span className="font-bold mr-3 sm:mr-5 text-sm sm:text-base md:text-lg w-6 inline-block text-center">{letter}.</span>
@@ -232,10 +232,10 @@ export default function PracticeQuiz() {
                 value={selected[q.id] ?? ''}
                 onChange={e => setSelected(prev => ({ ...prev, [q.id]: e.target.value }))}
                 disabled={submitting}
-                className="w-full p-4 sm:p-5 rounded-xl sm:rounded-2xl border-2 border-gray-200 text-base sm:text-lg text-center focus:border-blue-400 focus:outline-none bg-white"
+                className="w-full p-4 sm:p-5 rounded-xl sm:rounded-2xl border-2 border-outline-variant focus:border-primary text-base sm:text-lg text-center focus:outline-none bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant/50"
                 autoComplete="off"
               />
-              <p className="text-center text-xs sm:text-sm text-green-600 mt-2 font-medium">
+              <p className="text-center text-xs sm:text-sm text-secondary mt-2 font-medium">
                 ✓ Đáp án sẽ được chấm đúng ngay
               </p>
             </div>
@@ -247,7 +247,7 @@ export default function PracticeQuiz() {
           <button
             onClick={() => setCurrentIndex(i => Math.max(0, i - 1))}
             disabled={currentIndex === 0 || submitting}
-            className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base disabled:opacity-30 disabled:cursor-not-allowed text-gray-600 hover:text-gray-900"
+            className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base disabled:opacity-30 disabled:cursor-not-allowed text-on-surface-variant hover:text-on-surface"
           >
             ← Trước
           </button>
@@ -255,10 +255,10 @@ export default function PracticeQuiz() {
           {/* Hint */}
           <div className="flex flex-col items-center gap-1 text-center">
             {q.type === 'FILL_BLANK' && !selected[q.id] && (
-              <p className="text-xs text-gray-400">Nhập đáp án rồi bấm</p>
+              <p className="text-xs text-on-surface-variant">Nhập đáp án rồi bấm</p>
             )}
             {q.type !== 'FILL_BLANK' && !selected[q.id] && (
-              <p className="text-xs text-gray-400">Chưa chọn đáp án</p>
+              <p className="text-xs text-on-surface-variant">Chưa chọn đáp án</p>
             )}
           </div>
 
@@ -267,7 +267,7 @@ export default function PracticeQuiz() {
             <button
               onClick={handleLastQuestionAction}
               disabled={loadingMore || submitting}
-              className="px-4 sm:px-8 py-3 sm:py-4 bg-green-600 text-white rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+              className="px-4 sm:px-8 py-3 sm:py-4 bg-secondary text-white rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
             >
               {loadingMore ? (
                 <>
@@ -287,7 +287,7 @@ export default function PracticeQuiz() {
             <button
               onClick={() => { if (selected[q.id]) setCurrentIndex(i => i + 1); }}
               disabled={submitting || (!selected[q.id] && q.type !== 'FILL_BLANK')}
-              className="px-4 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-xl sm:rounded-2xl text-sm sm:text-base hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+              className="px-4 sm:px-8 py-3 sm:py-4 bg-primary text-white rounded-xl sm:rounded-2xl text-sm sm:text-base hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
             >
               Tiếp →
             </button>
@@ -301,10 +301,10 @@ export default function PracticeQuiz() {
               key={qq.id}
               className={`w-2 h-2 rounded-full transition-all ${
                 i === currentIndex
-                  ? 'w-4 bg-blue-600'
+                  ? 'w-4 bg-primary'
                   : selected[qq.id]
-                    ? 'bg-green-400'
-                    : 'bg-gray-200'
+                    ? 'bg-secondary'
+                    : 'bg-surface-container-high'
               }`}
             />
           ))}
