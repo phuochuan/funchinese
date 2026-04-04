@@ -278,19 +278,31 @@ function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   );
 }
 
+// ─── Routes that get full-screen treatment (no sidebar/topbar) ────────────────
+function isFocusRoute(pathname: string) {
+  // Flashcard study sessions, quiz sessions, quiz reviews — full immersive UI
+  return (
+    pathname.includes('/flashcard/') ||
+    pathname.includes('/quiz/') ||
+    pathname.includes('/lessons/')
+  );
+}
+
 // ─── Layout ───────────────────────────────────────────────────────────────────
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+  const focusMode = isFocusRoute(pathname);
 
   return (
     <div className="flex h-screen bg-surface-container-low overflow-hidden">
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      {!focusMode && <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
 
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <Topbar onMenuClick={() => setSidebarOpen(true)} />
+        {!focusMode && <Topbar onMenuClick={() => setSidebarOpen(true)} />}
 
-        {/* pb-20 để không bị bottom nav che trên mobile */}
-        <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">
+        {/* Focus routes use their own full-viewport header; otherwise pb-20 for mobile bottom nav */}
+        <main className={`flex-1 overflow-y-auto ${focusMode ? '' : 'pb-20 lg:pb-0'}`}>
           {children}
         </main>
       </div>

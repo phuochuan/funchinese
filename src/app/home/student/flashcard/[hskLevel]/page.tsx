@@ -346,28 +346,33 @@ export default function FlashcardPage() {
   return (
     <div className="min-h-screen bg-surface-container flex flex-col">
 
-      {/* ── Top bar ── */}
-      <div className="bg-surface-container-lowest border-b border-outline-variant/20 sticky top-0 z-10">
+      {/* ── Focus header ── */}
+      <div className="bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/20 sticky top-0 z-30">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/home/student/flashcard" className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-surface-container transition-colors">
-            <ChevronLeft className="w-5 h-5 text-on-surface-variant" />
+          <Link
+            href="/home/student/flashcard"
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex-shrink-0"
+            title="Thoát"
+          >
+            <ChevronLeft className="w-5 h-5 text-on-surface" />
           </Link>
 
-          <div className="flex-1">
-            <div className="text-xs text-on-surface-variant">
-              {hskLevel ?? 'Tất cả'} · {answered}/{total}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-on-surface-variant truncate">
+                {hskLevel ?? 'Tất cả'} · {answered}/{total}
+              </span>
+              {bucket && (
+                <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${bucket.color} bg-current/10 flex-shrink-0`}>
+                  <div className={`w-1.5 h-1.5 rounded-full ${bucket.dot}`} />
+                  {bucket.label}
+                </div>
+              )}
             </div>
-            <div className="h-1.5 bg-surface-container rounded-full mt-1 overflow-hidden">
+            <div className="h-1.5 bg-surface-container rounded-full mt-1.5 overflow-hidden">
               <div className="h-full bg-primary rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
           </div>
-
-          {bucket && (
-            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${bucket.color} bg-current/10`}>
-              <div className={`w-1.5 h-1.5 rounded-full ${bucket.dot}`} />
-              {bucket.label}
-            </div>
-          )}
         </div>
       </div>
 

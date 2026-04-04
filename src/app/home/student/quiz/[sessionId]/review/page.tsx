@@ -267,7 +267,7 @@ export default function QuizReview() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-surface-container">
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-surface-container">
         <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
         <p className="text-on-surface-variant">Đang tải kết quả...</p>
       </div>
@@ -276,7 +276,7 @@ export default function QuizReview() {
 
   if (!data) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-surface-container-lowest">
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-surface-container-lowest">
         <p className="text-5xl mb-4">😕</p>
         <p className="text-on-surface-variant mb-6">Không tìm thấy kết quả bài quiz.</p>
         <Link href="/home/student" className="px-6 py-3 bg-primary text-on-primary rounded-xl font-bold hover:brightness-110">
@@ -325,10 +325,10 @@ export default function QuizReview() {
     : results.filter(r => r.isCorrect);
 
   return (
-    <div className="min-h-screen bg-surface-container">
+    <div className="fixed inset-0 bg-surface-container flex flex-col overflow-y-auto">
 
-      {/* ── Header ─────────────────────────────────────────────────────────────── */}
-      <div className={`bg-gradient-to-r ${insight.bg} text-white`}>
+      {/* ── Focus Header ── */}
+      <div className={`bg-gradient-to-r ${insight.bg} text-white flex-shrink-0`}>
         <div className="max-w-3xl mx-auto px-6 py-10 text-center">
           <div className="text-5xl mb-3">{insight.emoji}</div>
           <div className="inline-block bg-white/20 text-white text-xs font-bold px-4 py-1 rounded-full mb-4">
@@ -339,7 +339,7 @@ export default function QuizReview() {
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
+      <div className="max-w-3xl mx-auto px-6 py-8 space-y-6 pb-12">
 
         {/* ── Stats Row ───────────────────────────────────────────────────────── */}
         <div className="grid grid-cols-3 gap-4">

@@ -101,8 +101,8 @@ export default function PracticeQuiz() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-surface-container">
-        <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-surface-container">
+        <div className="w-12 h-12 border-[3px] border-primary border-t-transparent rounded-full animate-spin mb-4" />
         <p className="text-on-surface-variant text-lg">Đang tải câu hỏi...</p>
       </div>
     );
@@ -110,7 +110,7 @@ export default function PracticeQuiz() {
 
   if (!questions.length) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-surface-container px-6">
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-surface-container px-6">
         <p className="text-5xl mb-4">😕</p>
         <p className="text-on-surface-variant mb-6 text-center">Không có câu hỏi nào trong phiên này.</p>
         <button onClick={() => router.push('/home/student')} className="px-6 py-3 bg-primary text-on-primary rounded-xl font-bold">
@@ -124,17 +124,26 @@ export default function PracticeQuiz() {
   const isTimeCritical = timeLeft <= 30;
 
   return (
-    <div className="min-h-screen bg-surface-container py-4 sm:py-6">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6">
+    <div className="fixed inset-0 bg-surface-container flex flex-col">
 
-        {/* ── HEADER ── */}
-        <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
+      {/* ── FOCUS HEADER ── */}
+      <div className="bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/20 flex-shrink-0">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
+
+          {/* Exit */}
+          <button
+            onClick={() => router.push('/home/student/quiz')}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex-shrink-0"
+            title="Thoát"
+          >
+            <span className="material-symbols-outlined text-on-surface" style={{ fontSize: 20 }}>close</span>
+          </button>
+
           {/* Progress */}
           <div className="flex-1 min-w-0">
             <div className="text-xs sm:text-sm font-medium text-on-surface-variant">
               Câu {currentIndex + 1} / {questions.length}
             </div>
-            {/* Progress bar */}
             <div className="mt-1.5 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary rounded-full transition-all duration-300"
@@ -144,15 +153,19 @@ export default function PracticeQuiz() {
           </div>
 
           {/* Timer */}
-          <div className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 rounded-2xl shadow-sm transition-all flex-shrink-0 ${
-            isTimeCritical ? 'bg-error/10 ring-1 ring-error/30' : 'bg-surface-container-lowest'
+          <div className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl flex-shrink-0 transition-all ${
+            isTimeCritical ? 'bg-error/10 ring-1 ring-error/30' : 'bg-surface-container'
           }`}>
-            <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${isTimeCritical ? 'text-error animate-pulse' : 'text-tertiary'}`} />
-            <span className={`font-mono text-sm sm:text-lg font-bold ${isTimeCritical ? 'text-error' : 'text-on-surface'}`}>
+            <Clock className={`w-4 h-4 ${isTimeCritical ? 'text-error animate-pulse' : 'text-tertiary'}`} />
+            <span className={`font-mono text-base font-bold ${isTimeCritical ? 'text-error' : 'text-on-surface'}`}>
               {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
             </span>
           </div>
         </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto flex flex-col">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 flex-1 flex flex-col">
 
         {/* ── QUESTION CARD ── */}
         <div className="bg-surface-container-lowest rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-10 shadow-sm border border-outline-variant/20 mb-4">
@@ -295,7 +308,7 @@ export default function PracticeQuiz() {
         </div>
 
         {/* Progress dots */}
-        <div className="flex items-center justify-center gap-1.5 mt-4 flex-wrap">
+        <div className="flex items-center justify-center gap-1.5 mt-4 flex-wrap pb-2">
           {questions.map((qq, i) => (
             <div
               key={qq.id}
@@ -309,7 +322,8 @@ export default function PracticeQuiz() {
             />
           ))}
         </div>
-      </div>
+        </div>{/* end max-w-2xl */}
+      </div>{/* end flex-1 overflow-y-auto */}
     </div>
   );
 }
