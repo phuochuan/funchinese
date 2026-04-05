@@ -113,15 +113,42 @@ export async function GET(req: NextRequest) {
   const userId = dbUser.id;
   const hsk    = req.nextUrl.searchParams.get("hsk"); // "HSK1" … "HSK6"
 
-  // Build where clause
-  const vocabWhere: any = {};
-  if (hsk) vocabWhere.hskLevel = hsk;
-
-  // Fetch all vocab at this level (or all if no hsk filter)
-  const vocabs = await prisma.vocabulary.findMany({
-    where:  vocabWhere,
-    orderBy: { hanzi: "asc" },
+  // Lấy danh sách classIds mà user là thành viên
+  const memberships = await prisma.classMember.findMany({
+    where: { userId },
+    select: { classId: true },
   });
+  const classIds = memberships.map(m => m.classId);
+
+  // Lấy vocabIds từ các bài đã dạy trong lớp của user
+  let taughtVocabIds: Set<string> = new Set();
+  if (classIds.length > 0) {
+    const taughtLessons = await prisma.classLesson.findMany({
+      where: { classId: { in: classIds }, completedAt: { not: null } },
+      select: { lessonId: true },
+    });
+    const lessonIds = [...new Set(taughtLessons.map(t => t.lessonId))];
+    if (lessonIds.length > 0) {
+      const lessonVocabs = await prisma.lessonVocabulary.findMany({
+        where: { lessonId: { in: lessonIds } },
+        select: { vocabularyId: true },
+      });
+      taughtVocabIds = new Set(lessonVocabs.map(v => v.vocabularyId));
+    }
+  }
+
+  // Nếu user có lớp → chỉ lấy vocab từ các bài đã dạy trong lớp
+  // Nếu không có lớp → fallback về tất cả vocab (học sinh không gắn lớp vẫn học được)
+  let vocabs;
+  if (classIds.length > 0 && taughtVocabIds.size > 0) {
+    const vocabWhere: any = { id: { in: [...taughtVocabIds] } };
+    if (hsk) vocabWhere.hskLevel = hsk;
+    vocabs = await prisma.vocabulary.findMany({ where: vocabWhere, orderBy: { hanzi: "asc" } });
+  } else {
+    const vocabWhere: any = {};
+    if (hsk) vocabWhere.hskLevel = hsk;
+    vocabs = await prisma.vocabulary.findMany({ where: vocabWhere, orderBy: { hanzi: "asc" } });
+  }
 
   if (vocabs.length === 0) {
     return NextResponse.json({

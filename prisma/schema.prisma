@@ -91,7 +91,8 @@ model Class {
 
   schedules ClassSchedule[]
   sessions  ClassSession[]
-  courseId     String? 
+  classLessons ClassLesson[]
+  courseId     String?
   course  Course?  @relation(fields: [courseId], references: [id]) 
 
   @@map("classes")
@@ -108,6 +109,21 @@ model ClassMember {
 
   @@unique([classId, userId])
   @@map("class_members")
+}
+
+// Theo dõi bài học đã dạy xong của từng lớp
+model ClassLesson {
+  id           String    @id @default(cuid())
+  classId      String
+  lessonId     String
+  completedAt  DateTime?
+  note         String?   // Ghi chú của giáo viên
+
+  class        Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
+  lesson       Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, lessonId])
+  @@map("class_lessons")
 }
 
 // ─── Courses & Lessons ────────────────────────────────────────────────────────
@@ -159,6 +175,7 @@ model Lesson {
   chapter       Chapter           @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   vocabularies  LessonVocabulary[]
   progress      LessonProgress[]
+  classLessons  ClassLesson[]
   thumbnail     String?
 
   @@map("lessons")
@@ -184,6 +201,7 @@ model Vocabulary {
   lessons     LessonVocabulary[]
   userVocab   UserVocabulary[]
   questions   QuestionVocab[]
+  aiQuestions AiQuestion[]
 
   @@map("vocabulary")
 }
@@ -516,8 +534,41 @@ model HskQuestion {
   updatedAt   DateTime     @updatedAt
   questionText String?
   questionImageUrl String?
+  representativeVocab String?  // Từ vựng đại diện cho câu hỏi (lưu hanzi hoặc ID)
 
   @@map("hsk_questions")
+}
+
+// AI-generated quiz questions, each linked to a Vocabulary word
+model AiQuestion {
+  id            String       @id @default(cuid())
+  vocabularyId  String       // Từ vựng đại diện cho câu hỏi này
+  vocabulary    Vocabulary   @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+
+  // Câu hỏi do AI tạo
+  questionText  String       // "学习 có nghĩa là gì?" hoặc "Từ nào có nghĩa là 'Học'?"
+  correctAnswer String       // Đáp án đúng (text nghĩa hoặc chữ Hán)
+  options       Json         // ["A. Học", "B. Ăn", "C. Ngủ", "D. Chơi"]
+
+  // Meta
+  hskLevel      Int          // 1-6
+  type          QuestionType @default(MULTIPLE_CHOICE)
+  explanation   String?
+  imageUrl      String?      // URL hình ảnh minh hoạ từ AI tạo
+  difficulty    String       @default("medium") // easy | medium | hard
+  generatedBy   String       @default("claude") // claude | Claude | gpt4
+  promptUsed    String?      // Prompt gốc để sinh ra câu hỏi
+
+  // Trạng thái duyệt
+  status        String       @default("pending") // pending | approved | rejected
+  reviewedBy    String?
+  reviewedAt    DateTime?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@unique([vocabularyId, questionText])
+  @@map("ai_questions")
 }
 
 

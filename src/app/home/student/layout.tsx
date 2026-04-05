@@ -11,11 +11,12 @@ import { useDarkMode, ColorMode } from "@/hooks/useDarkMode";
 // ─── Nav config ───────────────────────────────────────────────────────────────
 const NAV = [
   { href: "/home/student",             icon: "dashboard",         label: "Bảng điều khiển" },
-    { href: "/home/student/schedule", icon: "calendar_month", label: "Lịch học" },
+  { href: "/home/student/schedule", icon: "calendar_month", label: "Lịch học" },
   { href: "/home/student/courses",     icon: "menu_book",         label: "Chương trình"    },
-  { href: "/home/student/flashcard",    icon: "record_voice_over", label: "flashcard"       },
+  { href: "/home/student/flashcard",    icon: "record_voice_over", label: "Flashcard"       },
   { href: "/home/student/assignments", icon: "favorite",           label: "Bài tập"         },
   { href: "/home/student/quiz",   icon: "circle",             label: "Quiz"       },
+  { href: "/home/student/ai-quiz",  icon: "auto_awesome",      label: "✨ AI Quiz"     },
 ];
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
@@ -284,7 +285,8 @@ function isFocusRoute(pathname: string) {
   return (
     pathname.includes('/flashcard/') ||
     pathname.includes('/quiz/') ||
-    pathname.includes('/lessons/')
+    pathname.includes('/lessons/') ||
+    pathname.includes('/ai-quiz/')
   );
 }
 

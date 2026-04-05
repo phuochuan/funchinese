@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
   const hskLevel   = searchParams.get("hsk")   ?? "";
   const wordType   = searchParams.get("type")  ?? "";
   const hasAudio   = searchParams.get("audio");
+  const aiFilter   = searchParams.get("ai");    // "" | "1" | "0"
   const page       = parseInt(searchParams.get("page")  ?? "1");
   const limit      = parseInt(searchParams.get("limit") ?? "10");
 
@@ -45,6 +46,15 @@ export async function GET(req: NextRequest) {
   if (hasAudio === "1") where.audioUrl  = { not: null };
   if (hasAudio === "0") where.audioUrl  = null;
 
+  // Filter AI quiz
+  if (aiFilter === "0") {
+    // Từ chưa có câu hỏi AI nào (approved)
+    where.aiQuestions = { none: {} };
+  } else if (aiFilter === "1") {
+    // Từ đã có ít nhất 1 câu hỏi AI approved
+    where.aiQuestions = { some: { status: "approved" } };
+  }
+
   const [total, items] = await Promise.all([
     prisma.vocabulary.count({ where }),
     prisma.vocabulary.findMany({
@@ -52,11 +62,21 @@ export async function GET(req: NextRequest) {
       orderBy: [{ hskLevel: "asc" }, { hanzi: "asc" }],
       skip:  (page - 1) * limit,
       take:  limit,
+      include: {
+        _count: {
+          select: { aiQuestions: { where: { status: "approved" } } },
+        },
+      },
     }),
   ]);
 
+  const itemsWithAi = items.map(v => ({
+    ...v,
+    aiQuestionCount: v._count.aiQuestions,
+  }));
+
   return NextResponse.json({
-    vocabulary: items,
+    vocabulary: itemsWithAi,
     pagination: {
       total,
       page,

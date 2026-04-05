@@ -15,6 +15,7 @@ const NAV = [
   { href: "/admin/content/vocabulary",   icon: "library_books", label: "Từ vựng" },
   { href: "/admin/assignments",          icon: "assignment",  label: "Bài tập" },
   { href: "/admin/questions",             icon: "quiz",         label: "Thư viện câu hỏi" },
+  { href: "/admin/ai-questions",         icon: "auto_awesome", label: "✨ AI Câu hỏi" },
 ];
 
 // Reads cached theme from sessionStorage → applies CSS vars before React hydrates

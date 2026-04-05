@@ -19,7 +19,11 @@
       "Bash(grep -r \"BASE_PATH\\\\|basePath\" D:/workspace/funchinese/next.config.* D:/workspace/funchinese/.env*)",
       "Bash(grep -r \"NEXT_PUBLIC_ASSET_PREFIX\\\\|assetPrefix\" D:/workspace/funchinese/next.config.* D:/workspace/funchinese/.env*)",
       "Bash(npx tsc:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(del /f \"node_modules\\\\.prisma\\\\client\\\\query_engine-windows.dll.node\")",
+      "Bash(taskkill /f /im node.exe)",
+      "Bash(timeout /t 3)",
+      "Bash(powershell -Command \"Remove-Item -Force 'node_modules\\\\.prisma\\\\client\\\\query_engine-windows.dll.node' -ErrorAction SilentlyContinue; npx prisma generate 2>&1\")"
     ]
   }
 }

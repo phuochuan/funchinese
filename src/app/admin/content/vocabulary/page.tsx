@@ -14,6 +14,7 @@ interface Vocab {
   hskLevel: string;
   wordType: string | null;
   audioUrl: string | null;
+  aiQuestionCount?: number;
 }
 
 const HSK_LEVELS = ["HSK1","HSK2","HSK3","HSK4","HSK5","HSK6"];
@@ -248,13 +249,14 @@ function AudioBtn({ url }: { url: string | null }) {
 // ─── Vocab row ────────────────────────────────────────────────────────────────
 function VocabRow({
   vocab, selected,
-  onSelect, onEdit, onDelete,
+  onSelect, onEdit, onDelete, onGenerate,
 }: {
   vocab: Vocab;
   selected: boolean;
   onSelect: (id: string) => void;
   onEdit: (v: Vocab) => void;
   onDelete: (id: string) => void;
+  onGenerate: (v: Vocab) => void;
 }) {
   return (
     <tr className={`border-b border-outline-variant/10 hover:bg-surface-container/50 transition-colors
@@ -307,6 +309,29 @@ function VocabRow({
         <AudioBtn url={vocab.audioUrl} />
       </td>
 
+      {/* AI Quiz status */}
+      <td className="px-4 py-3">
+        {vocab.aiQuestionCount && vocab.aiQuestionCount > 0 ? (
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700">
+              <span className="material-symbols-outlined" style={{ fontSize: 12 }}>auto_awesome</span>
+              {vocab.aiQuestionCount}
+            </span>
+            <button onClick={() => onGenerate(vocab)}
+              title="Tạo thêm câu hỏi AI"
+              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-purple-100 text-purple-400 hover:text-purple-600 transition-colors">
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span>
+            </button>
+          </div>
+        ) : (
+          <button onClick={() => onGenerate(vocab)}
+            className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200 transition-all">
+            <span className="material-symbols-outlined" style={{ fontSize: 13 }}>auto_awesome</span>
+            Tạo quiz
+          </button>
+        )}
+      </td>
+
       {/* Actions */}
       <td className="px-4 py-3">
         <div className="flex gap-1">
@@ -324,6 +349,55 @@ function VocabRow({
   );
 }
 
+// ─── AI Generate button ───────────────────────────────────────────────────────
+function AIGenerateButton({ selectedIds, onDone }: { selectedIds: Set<string>; onDone: () => void }) {
+  const [generating, setGenerating] = useState(false);
+  const [done, setDone] = useState(false);
+  const [count, setCount] = useState(0);
+
+  const generate = async () => {
+    setGenerating(true);
+    const res = await fetch("/api/admin/ai-questions/generate-batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vocabularyIds: Array.from(selectedIds) }),
+    });
+    const data = await res.json();
+    setGenerating(false);
+    if (data.results) {
+      setCount(data.results.length);
+      setDone(true);
+      setTimeout(onDone, 2000);
+    }
+  };
+
+  if (done) {
+    return (
+      <span className="text-sm font-bold text-green-400 flex items-center gap-1.5">
+        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check_circle</span>
+        {count} câu hỏi AI đã tạo
+      </span>
+    );
+  }
+
+  return (
+    <button onClick={generate} disabled={generating}
+      className="text-sm font-bold text-purple-300 hover:opacity-80 disabled:opacity-50 transition-opacity flex items-center gap-1.5">
+      {generating ? (
+        <>
+          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          Đang tạo AI...
+        </>
+      ) : (
+        <>
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>auto_awesome</span>
+          Tạo AI Quiz
+        </>
+      )}
+    </button>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function VocabularyPage() {
   const [vocabs, setVocabs]           = useState<Vocab[]>([]);
@@ -334,6 +408,7 @@ export default function VocabularyPage() {
   const [searchInput, setSearchInput] = useState("");
   const [hskFilter, setHskFilter]     = useState("");
   const [audioFilter, setAudioFilter] = useState<"" | "1" | "0">("");
+  const [aiFilter, setAiFilter]       = useState<"" | "1" | "0">("");
   const [selected, setSelected]       = useState<Set<string>>(new Set());
   const [modal, setModal]             = useState<"add" | "edit" | null>(null);
   const [editingVocab, setEditingVocab] = useState<Vocab | null>(null);
@@ -400,13 +475,14 @@ export default function VocabularyPage() {
       ...(search     && { q: search }),
       ...(hskFilter  && { hsk: hskFilter }),
       ...(audioFilter && { audio: audioFilter }),
+      ...(aiFilter    && { ai: aiFilter }),
     });
     const res  = await fetch(`/api/admin/vocabulary?${params}`);
     const data = await res.json();
     setVocabs(data.vocabulary ?? []);
     setTotal(data.pagination?.total ?? 0);
     setLoading(false);
-  }, [page, search, hskFilter, audioFilter]);
+  }, [page, search, hskFilter, audioFilter, aiFilter]);
 
   useEffect(() => { fetchVocabs(); }, [fetchVocabs]);
 
@@ -429,6 +505,30 @@ export default function VocabularyPage() {
       fetch(`/api/admin/vocabulary/${id}`, { method: "DELETE" })
     ));
     setSelected(new Set());
+    fetchVocabs();
+  };
+
+  const handleGenerateAi = async (vocab: Vocab) => {
+    if (!confirm(`Tạo câu hỏi AI cho từ "${vocab.hanzi}" (${vocab.meaningVi})?`)) return;
+    const res = await fetch("/api/admin/ai-questions/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        vocabularyId: vocab.id,
+        hanzi:        vocab.hanzi,
+        pinyin:       vocab.pinyin,
+        meaningVi:    vocab.meaningVi,
+        hskLevel:     vocab.hskLevel,
+        wordType:     vocab.wordType,
+        exampleSentence: vocab.exampleSentence,
+      }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      alert(`Đã tạo câu hỏi AI cho "${vocab.hanzi}". Vào trang AI Câu hỏi để duyệt.`);
+    } else {
+      alert("Lỗi: " + (data.error ?? "Không rõ"));
+    }
     fetchVocabs();
   };
 
@@ -577,6 +677,27 @@ export default function VocabularyPage() {
               ))}
             </div>
           </div>
+
+          {/* AI Quiz filter */}
+          <div>
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">AI Quiz</p>
+            <div className="flex gap-2">
+              {[
+                { val: "" as const,   label: "Tất cả"       },
+                { val: "0" as const,  label: "🤖 Chưa tạo"  },
+                { val: "1" as const,  label: "✅ Đã tạo"     },
+              ].map(opt => (
+                <button key={opt.val}
+                  onClick={() => { setAiFilter(opt.val); setPage(1); }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all
+                    ${aiFilter === opt.val
+                      ? "bg-purple-600 text-white border-purple-600"
+                      : "border-outline-variant/30 text-on-surface-variant hover:bg-surface-container"}`}>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Stats card */}
@@ -605,7 +726,7 @@ export default function VocabularyPage() {
                     onChange={toggleSelectAll}
                     className="w-4 h-4 rounded accent-primary cursor-pointer" />
                 </th>
-                {["Từ vựng (chữ Hán)", "Pinyin", "Nghĩa tiếng Việt", "Cấp độ", "Audio", "Thao tác"].map(h => (
+                {["Từ vựng (chữ Hán)", "Pinyin", "Nghĩa tiếng Việt", "Cấp độ", "Audio", "AI Quiz", "Thao tác"].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-bold text-on-surface-variant uppercase tracking-wider">
                     {h}
                   </th>
@@ -625,7 +746,7 @@ export default function VocabularyPage() {
 
               {!loading && vocabs.map(v => (
                 <VocabRow key={v.id} vocab={v} selected={selected.has(v.id)}
-                  onSelect={toggleSelect} onEdit={openEdit} onDelete={handleDelete} />
+                  onSelect={toggleSelect} onEdit={openEdit} onDelete={handleDelete} onGenerate={handleGenerateAi} />
               ))}
 
               {!loading && vocabs.length === 0 && (
@@ -694,10 +815,7 @@ export default function VocabularyPage() {
           </div>
           <span className="text-sm font-bold">từ đã chọn</span>
           <div className="w-px h-4 bg-white/20" />
-          <button className="text-sm font-bold text-secondary-fixed hover:opacity-80 transition-opacity flex items-center gap-1.5">
-            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>download</span>
-            Xuất CSV
-          </button>
+          <AIGenerateButton selectedIds={selected} onDone={() => setSelected(new Set())} />
           <button onClick={handleDeleteSelected}
             className="text-sm font-bold text-error hover:opacity-80 transition-opacity flex items-center gap-1.5">
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>

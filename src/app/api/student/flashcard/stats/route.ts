@@ -11,8 +11,6 @@ import { prisma } from "@/lib/prisma";
 // Level 4 — 1 tuần:  interval in [4,7]
 // Level 5 — 1 tháng: interval >= 8
 
-type LevelCount = { label: string; interval: string; count: number };
-
 export async function GET(req: NextRequest) {
   const authSession = await auth();
   if (!authSession?.user?.keycloakId) {
@@ -48,10 +46,39 @@ export async function GET(req: NextRequest) {
     if (level === 1) byHsk[hsk].overdue++;
   }
 
-  const totalLearned = userVocabs.length;
+  // Lấy classIds của user
+  const memberships = await prisma.classMember.findMany({
+    where: { userId },
+    select: { classId: true },
+  });
+  const classIds = memberships.map(m => m.classId);
 
-  // New words = total pool - words user has seen
-  const totalVocab = await prisma.vocabulary.count();
+  // Lấy danh sách lessonId đã dạy trong lớp của user
+  let taughtLessonIds: Set<string> = new Set();
+  if (classIds.length > 0) {
+    const taughtLessons = await prisma.classLesson.findMany({
+      where: { classId: { in: classIds }, completedAt: { not: null } },
+      select: { lessonId: true },
+    });
+    taughtLessonIds = new Set(taughtLessons.map(t => t.lessonId));
+  }
+
+  // Lấy vocabIds từ các bài đã dạy (LessonVocabulary → lessonId)
+  let taughtVocabIds: Set<string> = new Set();
+  if (taughtLessonIds.size > 0) {
+    const lessonVocabs = await prisma.lessonVocabulary.findMany({
+      where: { lessonId: { in: [...taughtLessonIds] } },
+      select: { vocabularyId: true },
+    });
+    taughtVocabIds = new Set(lessonVocabs.map(v => v.vocabularyId));
+  }
+
+  const isClassBound = classIds.length > 0 && taughtVocabIds.size > 0;
+  const totalVocab = isClassBound
+    ? taughtVocabIds.size
+    : await prisma.vocabulary.count();
+
+  const totalLearned = userVocabs.length;
   const newWords = Math.max(0, totalVocab - totalLearned);
   levelCounts[0] = newWords;
 
@@ -59,18 +86,22 @@ export async function GET(req: NextRequest) {
   for (let lvl = 1; lvl <= 6; lvl++) {
     const level = `HSK${lvl}`;
     if (!byHsk[level]) {
-      const totalAtLevel = await prisma.vocabulary.count({ where: { hskLevel: level } });
+      const totalAtLevel = isClassBound
+        ? await prisma.vocabulary.count({ where: { id: { in: [...taughtVocabIds] }, hskLevel: level as any } })
+        : await prisma.vocabulary.count({ where: { hskLevel: level as any } });
       byHsk[level] = { total: 0, overdue: totalAtLevel };
     }
   }
 
-  // How many new words per HSK level
+  // new words per HSK level (class-filtered)
   const newWordsByHsk: Record<string, number> = {};
   const learnedHskIds = new Set(userVocabs.map(uv => uv.vocabularyId));
   for (let lvl = 1; lvl <= 6; lvl++) {
     const level = `HSK${lvl}`;
     const allAtLevel = await prisma.vocabulary.findMany({
-      where: { hskLevel: level },
+      where: isClassBound
+        ? { id: { in: [...taughtVocabIds] }, hskLevel: level as any }
+        : { hskLevel: level as any },
       select: { id: true },
     });
     newWordsByHsk[level] = allAtLevel.filter(v => !learnedHskIds.has(v.id)).length;

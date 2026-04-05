@@ -20,6 +20,15 @@ interface ClassDetail {
   members: Member[];
   stats: { totalStudents: number; totalSessions: number; doneSessions: number; remainingSessions: number };
 }
+interface TimelineLesson {
+  id: string; title: string; titleChinese: string | null;
+  pinyin: string | null; durationMins: number; sortOrder: number;
+  isCompleted: boolean; completedAt: string | null; note: string | null;
+}
+interface TimelineChapter {
+  id: string; title: string; sortOrder: number;
+  lessons: TimelineLesson[];
+}
 
 // dayOfWeek: 1=T2 2=T3 3=T4 4=T5 5=T6 6=T7 7=CN
 const DAY = ["","Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ Nhật"];
@@ -167,11 +176,14 @@ function AddMemberModal({ classId, onClose, onSaved }: {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ClassDetailPage({ params }: { params: Promise<{ classId: string }> }) {
   const { classId } = use(params);
-  const [cls,     setCls]     = useState<ClassDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [tab,     setTab]     = useState<"info" | "schedule" | "students">("info");
-  const [modal,   setModal]   = useState<"schedule" | "member" | null>(null);
+  const [cls,         setCls]         = useState<ClassDetail | null>(null);
+  const [loading,      setLoading]      = useState(true);
+  const [tab,          setTab]          = useState<"info" | "schedule" | "students" | "timeline">("info");
+  const [modal,        setModal]        = useState<"schedule" | "member" | null>(null);
   const [memberSearch, setMemberSearch] = useState("");
+  const [timeline,    setTimeline]     = useState<TimelineChapter[]>([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [toggling,    setToggling]     = useState<string | null>(null); // lessonId đang toggle
 
   const fetchClass = async () => {
     setLoading(true);
@@ -182,6 +194,34 @@ export default function ClassDetailPage({ params }: { params: Promise<{ classId:
   };
 
   useEffect(() => { fetchClass(); }, [classId]);
+
+  const fetchTimeline = async () => {
+    setTimelineLoading(true);
+    const res = await fetch(`/api/admin/classes/${classId}/lessons`);
+    const data = await res.json();
+    setTimeline(data.chapters ?? []);
+    setTimelineLoading(false);
+  };
+
+  useEffect(() => {
+    if (tab === "timeline") fetchTimeline();
+  }, [tab, classId]);
+
+  const toggleLesson = async (lessonId: string, currentCompleted: boolean) => {
+    setToggling(lessonId);
+    await fetch(`/api/admin/classes/${classId}/lessons`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lessonId, completed: !currentCompleted }),
+    });
+    // Update local state
+    setTimeline(prev => prev.map(ch =>
+      ({ ...ch, lessons: ch.lessons.map(l =>
+        l.id === lessonId ? { ...l, isCompleted: !currentCompleted, completedAt: !currentCompleted ? new Date().toISOString() : null } : l
+      )})
+    ));
+    setToggling(null);
+  };
 
   const deleteSchedule = async (scheduleId: string) => {
     if (!confirm("Xoá lịch học này?")) return;
@@ -212,6 +252,7 @@ export default function ClassDetailPage({ params }: { params: Promise<{ classId:
     { key: "info",     label: "Thông tin"  },
     { key: "schedule", label: "Lịch học"   },
     { key: "students", label: "Học sinh"   },
+    { key: "timeline", label: "Tiến độ"   },
   ] as const;
 
   return (
@@ -476,6 +517,154 @@ export default function ClassDetailPage({ params }: { params: Promise<{ classId:
                       </button>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Tab: Tiến độ bài học ── */}
+          {tab === "timeline" && (
+            <div>
+              {!cls?.course ? (
+                <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-12 text-center">
+                  <span className="material-symbols-outlined text-5xl text-on-surface-variant/20 block mb-4">school</span>
+                  <p className="text-on-surface font-bold mb-1">Lớp chưa liên kết khoá học</p>
+                  <p className="text-sm text-on-surface-variant mb-4">Liên kết khoá học ở tab Thông tin để xem tiến độ bài học</p>
+                  <Link href={`/admin/content/courses`}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary rounded-xl text-sm font-bold hover:brightness-110 transition-all">
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>library_books</span>
+                    Quản lý khoá học
+                  </Link>
+                </div>
+              ) : timelineLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 w-full" />)}
+                </div>
+              ) : timeline.length === 0 ? (
+                <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-12 text-center">
+                  <span className="material-symbols-outlined text-5xl text-on-surface-variant/20 block mb-4">article</span>
+                  <p className="text-on-surface font-bold mb-1">Khoá học chưa có bài học nào</p>
+                  <Link href={`/admin/content/courses/${cls.course.id}/edit`}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary rounded-xl text-sm font-bold hover:brightness-110 transition-all">
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>edit</span>
+                    Chỉnh sửa khoá học
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {timeline.map((chapter, ci) => {
+                    const totalLessons = chapter.lessons.length;
+                    const completedLessons = chapter.lessons.filter(l => l.isCompleted).length;
+                    const progressPct = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+                    return (
+                      <div key={chapter.id}
+                        className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 overflow-hidden">
+                        {/* Chapter header */}
+                        <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/10 bg-surface-container">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                              <span className="text-sm font-extrabold text-primary">{ci + 1}</span>
+                            </div>
+                            <div>
+                              <p className="font-bold text-on-surface">{chapter.title}</p>
+                              <p className="text-xs text-on-surface-variant">
+                                {completedLessons}/{totalLessons} bài đã hoàn thành
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {/* Progress bar */}
+                            <div className="hidden sm:flex flex-col items-end gap-1">
+                              <div className="flex items-center gap-2">
+                                <div className="w-24 h-1.5 bg-outline-variant/30 rounded-full overflow-hidden">
+                                  <div className="h-full bg-primary rounded-full transition-all"
+                                    style={{ width: `${progressPct}%` }} />
+                                </div>
+                                <span className="text-xs font-bold text-primary">{progressPct}%</span>
+                              </div>
+                            </div>
+                            {completedLessons === totalLessons && totalLessons > 0 && (
+                              <span className="flex items-center gap-1 text-xs px-2.5 py-1 bg-secondary/10 text-secondary rounded-full font-bold">
+                                <span className="material-symbols-outlined" style={{ fontSize: 12 }}>check_circle</span>
+                                Xong
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Lessons */}
+                        <div className="divide-y divide-outline-variant/10">
+                          {chapter.lessons.map((lesson, li) => (
+                            <div key={lesson.id}
+                              className={`flex items-center gap-4 px-5 py-3.5 hover:bg-surface-container transition-colors group
+                                ${lesson.isCompleted ? "bg-green-50/40" : ""}`}>
+                              {/* Toggle button */}
+                              <button
+                                onClick={() => toggleLesson(lesson.id, lesson.isCompleted)}
+                                disabled={toggling === lesson.id}
+                                className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all
+                                  ${lesson.isCompleted
+                                    ? "bg-secondary text-white shadow-sm"
+                                    : "border-2 border-outline-variant/40 text-on-surface-variant hover:border-secondary hover:text-secondary"
+                                  } ${toggling === lesson.id ? "opacity-50" : ""}`}
+                                title={lesson.isCompleted ? "Bỏ đánh dấu hoàn thành" : "Đánh dấu hoàn thành"}
+                              >
+                                {toggling === lesson.id ? (
+                                  <span className="material-symbols-outlined" style={{ fontSize: 16, animation: "spin 1s linear infinite" }}>sync</span>
+                                ) : lesson.isCompleted ? (
+                                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check</span>
+                                ) : (
+                                  <span className="text-sm font-bold">{li + 1}</span>
+                                )}
+                              </button>
+
+                              {/* Lesson info */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <p className={`text-sm font-semibold ${lesson.isCompleted ? "line-through opacity-60" : "text-on-surface"}`}>
+                                    {lesson.title}
+                                  </p>
+                                  {lesson.titleChinese && (
+                                    <span className="chinese-text text-xs text-primary font-medium">{lesson.titleChinese}</span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-3 mt-0.5">
+                                  <span className="text-xs text-on-surface-variant flex items-center gap-1">
+                                    <span className="material-symbols-outlined" style={{ fontSize: 12 }}>schedule</span>
+                                    {lesson.durationMins} phút
+                                  </span>
+                                  {lesson.completedAt && (
+                                    <span className="text-xs text-secondary flex items-center gap-1">
+                                      <span className="material-symbols-outlined" style={{ fontSize: 12 }}>event_available</span>
+                                      {new Date(lesson.completedAt).toLocaleDateString("vi-VN", { day: "2-digit", month: "short", year: "numeric" })}
+                                    </span>
+                                  )}
+                                  {lesson.note && (
+                                    <span className="text-xs text-on-surface-variant italic truncate max-w-xs">{lesson.note}</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Status badge */}
+                              <div className="flex-shrink-0">
+                                {lesson.isCompleted ? (
+                                  <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 bg-secondary/10 text-secondary rounded-full font-bold">
+                                    <span className="material-symbols-outlined" style={{ fontSize: 12 }}>check_circle</span>
+                                    Đã dạy
+                                  </span>
+                                ) : (
+                                  <span className="text-xs px-2.5 py-1 bg-surface-container text-on-surface-variant rounded-full font-medium">
+                                    Chưa dạy
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -54,7 +54,7 @@ export default function CoursesPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-extrabold text-on-surface">Chương trình học</h1>
         <p className="text-sm text-on-surface-variant mt-1">
-          Chinh phục tiếng Trung từ HSK 1 đến HSK 6
+          Chinh phục tiếng Trung
         </p>
       </div>
 
@@ -133,7 +133,7 @@ export default function CoursesPage() {
                       )}
 
                       {/* Progress */}
-                      <div>
+                      {/* <div>
                         <div className="flex items-center justify-between mb-1.5">
                           <span className={`text-xs font-semibold ${isActive ? "text-white/70" : "text-on-surface-variant"}`}>
                             {course.completedLessons}/{course.totalLessons} bài học
@@ -148,7 +148,7 @@ export default function CoursesPage() {
                             style={{ width: `${course.progressPct}%` }}
                           />
                         </div>
-                      </div>
+                      </div> */}
                     </div>
 
                     {/* Right — action */}
@@ -174,7 +174,7 @@ export default function CoursesPage() {
                             href={`/home/student/courses/${course.id}`}
                             className="flex items-center gap-2 bg-primary text-on-primary font-bold text-sm px-5 py-2.5 rounded-xl hover:brightness-110 transition-all"
                           >
-                            Bắt đầu
+                            {/* Bắt đầu */}
                             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_forward</span>
                           </Link>
                         )}

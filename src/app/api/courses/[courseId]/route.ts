@@ -23,6 +23,14 @@ export async function GET(
   const userId = dbUser.id;
 
   // Course + chapters + lessons
+  // Lấy classIds của student (nếu có)
+  const memberships = await prisma.classMember.findMany({
+    where: { userId },
+    select: { classId: true },
+  });
+  const classIds = memberships.map(m => m.classId);
+
+  // Course + chapters + lessons
   const course = await prisma.course.findUnique({
     where: { id: courseId },
     include: {
@@ -53,6 +61,20 @@ export async function GET(
     ch.lessons.map((l) => l.id)
   );
 
+  // Lọc lessons: nếu student có lớp → chỉ hiện bài đã được GV đánh dấu dạy xong
+  const taughtLessonIds = new Set<string>();
+  if (classIds.length > 0) {
+    const taught = await prisma.classLesson.findMany({
+      where: {
+        classId: { in: classIds },
+        completedAt: { not: null },
+        lessonId: { in: allLessonIds },
+      },
+      select: { lessonId: true },
+    });
+    taught.forEach(t => taughtLessonIds.add(t.lessonId));
+  }
+
   // Progress của user cho khoá này
   const progressList = await prisma.lessonProgress.findMany({
     where: { userId, lessonId: { in: allLessonIds } },
@@ -74,23 +96,28 @@ export async function GET(
   );
 
   // Map chapters với lesson status
-  const totalLessons = allLessonIds.length;
-  const completedLessons = progressList.filter((p) => p.completed).length;
+  // Lọc: nếu student có lớp → chỉ tính bài đã được GV dạy xong
+  const effectiveLessonIds = classIds.length === 0
+    ? allLessonIds
+    : allLessonIds.filter(id => taughtLessonIds.has(id));
+
+  const totalLessons = effectiveLessonIds.length;
+  const completedLessons = progressList.filter((p) =>
+    effectiveLessonIds.includes(p.lessonId) && p.completed
+  ).length;
   const progressPct = totalLessons > 0
     ? Math.round((completedLessons / totalLessons) * 100)
     : 0;
 
-  // Bài đang học / bài tiếp theo
+  // Bài đang học / bài tiếp theo (chỉ bài đã dạy)
   let currentLessonId: string | null = null;
   let nextLessonId: string | null = null;
 
-  for (const id of allLessonIds) {
+  for (const id of effectiveLessonIds) {
     const p = progressMap.get(id);
     if (!p) {
-      // Chưa mở bao giờ — đây là bài tiếp theo
       nextLessonId = nextLessonId ?? id;
     } else if (!p.completed) {
-      // Đang học dở
       currentLessonId = id;
       break;
     }
@@ -99,15 +126,19 @@ export async function GET(
 
   // Build chapters data với lesson statuses
   // Logic mở khóa: bài trước completed thì mở bài sau
+  // Nếu student có lớp → chỉ hiện bài đã được GV đánh dấu dạy xong
   let prevCompleted = true; // bài đầu tiên luôn mở
   const chaptersData = course.chapters.map((ch) => {
     const chCompleted = ch.lessons.filter((l) => progressMap.get(l.id)?.completed).length;
 
     const lessonsData = ch.lessons.map((lesson) => {
       const progress = progressMap.get(lesson.id);
+      const isTaught = classIds.length === 0 || taughtLessonIds.has(lesson.id);
       let status: "completed" | "in_progress" | "available" | "locked";
 
-      if (progress?.completed) {
+      if (!isTaught) {
+        status = "locked"; // GV chưa dạy bài này trong lớp của student
+      } else if (progress?.completed) {
         status = "completed";
       } else if (progress && !progress.completed) {
         status = "in_progress";

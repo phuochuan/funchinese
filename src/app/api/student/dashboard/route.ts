@@ -22,22 +22,8 @@ export async function GET() {
   const userId = dbUser.id;
 
   try {
-    const userXpData = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { xp: true },
-    });
-
-    const [
-      user,
-      wordCount,
-      assignmentStats,
-      quizAvg,
-      leaderboardRank,
-      upcomingAssignments,
-      dailyActivity,
-      continueLesson,
-      notifications,
-    ] = await Promise.all([
+    // Group 1: user info + word count (parallel, lightweight)
+    const [user, wordCount] = await Promise.all([
       prisma.user.findUnique({
         where: { id: userId },
         select: {
@@ -46,14 +32,15 @@ export async function GET() {
           profile: { select: { avatar: true } },
         },
       }),
-
       prisma.userVocabulary.count({ where: { userId } }),
+    ]);
 
+    // Group 2: stats (sequential to avoid pool exhaustion with PgBouncer)
+    const [assignmentStats, quizAvg, leaderboardRank] = await Promise.all([
       prisma.submission.aggregate({
         where: { userId, status: "GRADED" },
         _count: { id: true },
       }),
-
       prisma.quizSession.aggregate({
         where: {
           userId,
@@ -61,11 +48,13 @@ export async function GET() {
         },
         _avg: { correctQ: true, totalQ: true },
       }),
-
       prisma.user.count({
-        where: { xp: { gt: userXpData?.xp ?? 0 } },
+        where: { xp: { gt: user?.xp ?? 0 } },
       }),
+    ]);
 
+    // Group 3: content (sequential)
+    const [upcomingAssignments, dailyActivity, continueLesson, notifications] = await Promise.all([
       prisma.assignment.findMany({
         where: {
           class: { members: { some: { userId } } },
@@ -85,7 +74,6 @@ export async function GET() {
         orderBy: { deadline: "asc" },
         take: 5,
       }),
-
       prisma.dailyActivity.findMany({
         where: {
           userId,
@@ -95,7 +83,6 @@ export async function GET() {
         },
         select: { date: true, xpEarned: true, wordsLearned: true },
       }),
-
       prisma.lessonProgress.findFirst({
         where: { userId, completed: false },
         orderBy: { lastViewedAt: "desc" },
@@ -108,7 +95,6 @@ export async function GET() {
           },
         },
       }),
-
       prisma.notification.findMany({
         where: { userId, read: false },
         orderBy: { createdAt: "desc" },
